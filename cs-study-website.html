@@ -1,0 +1,3286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS Academy — Learn Computer Science</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #00f5a0;
+    --accent2: #7c3aed;
+    --accent3: #f59e0b;
+    --accent4: #ef4444;
+    --text: #e8e8f0;
+    --text-dim: #8888aa;
+    --text-dimmer: #55556a;
+    --glow: 0 0 30px rgba(0,245,160,0.15);
+    --glow2: 0 0 30px rgba(124,58,237,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ========= SCROLLBAR ========= */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 3px; }
+
+  /* ========= GRID BG ========= */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,160,0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ========= LAYOUT ========= */
+  #app { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ========= NAV ========= */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.05em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nav-logo span { color: var(--text-dim); font-weight: 400; }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .nav-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 3px 10px;
+    border-radius: 100px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    letter-spacing: 0.08em;
+  }
+
+  #xp-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ========= MAIN CONTENT ========= */
+  main {
+    margin-top: 60px;
+    flex: 1;
+    display: flex;
+  }
+
+  /* ========= SIDEBAR ========= */
+  #sidebar {
+    width: 280px;
+    min-width: 280px;
+    height: calc(100vh - 60px);
+    position: fixed;
+    top: 60px;
+    left: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 1.5rem 0;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dimmer);
+    padding: 1rem 1.5rem 0.4rem;
+    text-transform: uppercase;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.65rem 1.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--text-dim);
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+    position: relative;
+  }
+
+  .sidebar-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+
+  .sidebar-item.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(0,245,160,0.05);
+  }
+
+  .sidebar-item .icon { font-size: 1rem; flex-shrink: 0; }
+  .sidebar-item .label { flex: 1; }
+
+  .sidebar-item .level-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .level-beginner { background: #22c55e; }
+  .level-intermediate { background: var(--accent3); }
+  .level-advanced { background: var(--accent4); }
+  .level-pro { background: var(--accent2); }
+
+  .sidebar-item .check {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid var(--text-dimmer);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem;
+    transition: all 0.2s;
+  }
+
+  .sidebar-item.done .check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+
+  /* ========= CONTENT AREA ========= */
+  #content {
+    margin-left: 280px;
+    flex: 1;
+    padding: 2.5rem;
+    max-width: 100%;
+  }
+
+  /* ========= HERO ========= */
+  #hero {
+    padding: 4rem 2.5rem 3rem;
+    max-width: 1000px;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    border: 1px solid rgba(0,245,160,0.3);
+    padding: 4px 12px;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    margin-bottom: 1rem;
+  }
+
+  h1 .hl {
+    background: linear-gradient(135deg, var(--accent) 0%, #00b4d8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    max-width: 600px;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    font-weight: 400;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-dimmer);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.75rem 1.75rem;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,245,160,0.3); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.75rem 1.75rem;
+    background: transparent;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover { border-color: var(--text-dim); background: rgba(255,255,255,0.03); }
+
+  /* ========= LEVEL CARDS ========= */
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  .level-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .level-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border-radius: 12px;
+  }
+
+  .level-card:hover { transform: translateY(-3px); }
+  .level-card:hover::after { opacity: 1; }
+
+  .level-card.beginner::after { background: radial-gradient(circle at top left, rgba(34,197,94,0.08), transparent 60%); }
+  .level-card.intermediate::after { background: radial-gradient(circle at top left, rgba(245,158,11,0.08), transparent 60%); }
+  .level-card.advanced::after { background: radial-gradient(circle at top left, rgba(239,68,68,0.08), transparent 60%); }
+  .level-card.pro::after { background: radial-gradient(circle at top left, rgba(124,58,237,0.08), transparent 60%); }
+
+  .level-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+
+  .lc-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+  .lc-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 100px;
+    margin-bottom: 0.5rem;
+  }
+
+  .lc-badge.b { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .lc-badge.i { background: rgba(245,158,11,0.15); color: var(--accent3); }
+  .lc-badge.a { background: rgba(239,68,68,0.15); color: var(--accent4); }
+  .lc-badge.p { background: rgba(124,58,237,0.15); color: #a78bfa; }
+
+  .lc-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.35rem; }
+  .lc-desc { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 1rem; }
+
+  .lc-progress-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .lc-progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+  }
+
+  .fill-b { background: #22c55e; }
+  .fill-i { background: var(--accent3); }
+  .fill-a { background: var(--accent4); }
+  .fill-p { background: #a78bfa; }
+
+  .lc-topics-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dimmer);
+    margin-top: 0.4rem;
+  }
+
+  /* ========= LESSON VIEW ========= */
+  #lesson-view { display: none; }
+
+  .lesson-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .lesson-breadcrumb {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dimmer);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .lesson-breadcrumb span { color: var(--text-dim); cursor: pointer; }
+  .lesson-breadcrumb span:hover { color: var(--accent); }
+
+  .lesson-title {
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  .lesson-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    padding: 3px 10px;
+    background: var(--surface2);
+    border-radius: 100px;
+    border: 1px solid var(--border);
+  }
+
+  .lesson-body {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (max-width: 900px) {
+    .lesson-body { grid-template-columns: 1fr; }
+    #sidebar { transform: translateX(-100%); }
+    #content { margin-left: 0; }
+  }
+
+  .lesson-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .lesson-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .tab-btn {
+    padding: 0.875rem 1.5rem;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-content { display: none; padding: 2rem; }
+  .tab-content.active { display: block; }
+
+  /* ========= TYPOGRAPHY IN LESSONS ========= */
+  .lesson-text h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 1.5rem 0 0.75rem;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .lesson-text h2:first-child { margin-top: 0; }
+
+  .lesson-text h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 1.25rem 0 0.5rem;
+    color: var(--accent);
+  }
+
+  .lesson-text p {
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+  }
+
+  .lesson-text ul, .lesson-text ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .lesson-text li {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text-dim);
+    margin-bottom: 0.3rem;
+  }
+
+  .lesson-text strong { color: var(--text); font-weight: 600; }
+
+  .info-box {
+    background: rgba(0,245,160,0.05);
+    border: 1px solid rgba(0,245,160,0.2);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .info-box .info-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .warn-box {
+    background: rgba(245,158,11,0.05);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .warn-box .warn-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  /* ========= CODE EDITOR ========= */
+  .code-editor-wrap {
+    background: #0d0d14;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1rem 0;
+    border: 1px solid var(--border);
+  }
+
+  .code-editor-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 1rem;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-dots { display: flex; gap: 6px; }
+  .code-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: block;
+  }
+
+  .code-dots span:nth-child(1) { background: #ef4444; }
+  .code-dots span:nth-child(2) { background: var(--accent3); }
+  .code-dots span:nth-child(3) { background: #22c55e; }
+
+  .code-lang {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dimmer);
+    letter-spacing: 0.1em;
+  }
+
+  .code-copy {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .code-copy:hover { color: var(--accent); border-color: var(--accent); }
+
+  pre {
+    padding: 1.25rem;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: #c9d1d9;
+  }
+
+  /* Syntax highlight */
+  .kw { color: #ff7b72; }
+  .fn { color: #79c0ff; }
+  .str { color: #a5d6ff; }
+  .num { color: #f0a500; }
+  .cmt { color: #556270; font-style: italic; }
+  .cls { color: #ffa657; }
+  .var { color: #c9d1d9; }
+  .op { color: #89d4f7; }
+
+  /* ========= QUIZ ========= */
+  .quiz-wrap { padding: 0; }
+
+  .quiz-question {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+  }
+
+  .quiz-q-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+
+  .quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .quiz-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.65rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    transition: all 0.15s;
+    background: var(--surface);
+  }
+
+  .quiz-option:hover { border-color: var(--accent2); color: var(--text); background: rgba(124,58,237,0.05); }
+  .quiz-option.correct { border-color: #22c55e; color: #22c55e; background: rgba(34,197,94,0.08); }
+  .quiz-option.wrong { border-color: var(--accent4); color: var(--accent4); background: rgba(239,68,68,0.08); }
+
+  .quiz-option .opt-letter {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+
+  .quiz-feedback {
+    display: none;
+    margin-top: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct-fb { background: rgba(34,197,94,0.1); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+  .quiz-feedback.wrong-fb { background: rgba(239,68,68,0.1); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+
+  .btn-check {
+    margin-top: 1.5rem;
+    padding: 0.7rem 1.5rem;
+    background: var(--accent2);
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-check:hover { background: #6d28d9; transform: translateY(-1px); }
+
+  /* ========= ASIDE PANEL ========= */
+  .lesson-aside { display: flex; flex-direction: column; gap: 1rem; }
+
+  .aside-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .aside-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dimmer);
+    margin-bottom: 1rem;
+  }
+
+  .key-terms { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .term-item {
+    padding: 0.6rem 0.75rem;
+    background: var(--surface2);
+    border-radius: 8px;
+    font-size: 0.82rem;
+  }
+
+  .term-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin-bottom: 2px;
+  }
+
+  .term-def { color: var(--text-dim); line-height: 1.4; font-size: 0.8rem; }
+
+  .next-btn {
+    width: 100%;
+    padding: 0.85rem;
+    background: linear-gradient(135deg, var(--accent2), #4f46e5);
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .next-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,58,237,0.3); }
+
+  .done-btn {
+    width: 100%;
+    padding: 0.85rem;
+    background: rgba(0,245,160,0.1);
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border: 1px solid rgba(0,245,160,0.3);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 0.5rem;
+  }
+
+  .done-btn:hover { background: rgba(0,245,160,0.15); }
+
+  /* ========= RESOURCES ========= */
+  .resource-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .resource-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.6rem 0.75rem;
+    background: var(--surface2);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+
+  .resource-item:hover { color: var(--text); border-color: var(--border); }
+  .resource-item .r-icon { font-size: 1rem; }
+  .resource-item .r-tag {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    background: rgba(0,245,160,0.1);
+    color: var(--accent);
+    border-radius: 4px;
+  }
+
+  /* ========= SECTION TITLE ========= */
+  .section-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-tag::before { content: '//'; color: var(--text-dimmer); }
+
+  .section-title-text {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.4rem;
+  }
+
+  .section-desc {
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* ========= PROGRESS BAR ========= */
+  .overall-progress {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    min-width: 120px;
+  }
+
+  .progress-bar-outer {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    min-width: 150px;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #00b4d8);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+  }
+
+  .progress-pct {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 700;
+    min-width: 40px;
+    text-align: right;
+  }
+
+  /* ========= SEARCH ========= */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.65rem 1rem;
+    margin-bottom: 2rem;
+    transition: border-color 0.2s;
+  }
+
+  .search-bar:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,245,160,0.08); }
+
+  .search-bar input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  .search-bar input::placeholder { color: var(--text-dimmer); }
+
+  .search-icon { color: var(--text-dimmer); font-size: 0.9rem; }
+
+  /* ========= XP TOAST ========= */
+  #xp-toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.88rem;
+    z-index: 999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: var(--glow);
+  }
+
+  #xp-toast.show { transform: translateY(0); opacity: 1; }
+  #xp-toast .xp-icon { font-size: 1.5rem; }
+  #xp-toast .xp-amount { font-family: 'Space Mono', monospace; color: var(--accent3); font-weight: 700; }
+
+  /* ========= SEARCH RESULTS ========= */
+  .search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .search-result-item:hover { border-color: var(--accent2); background: rgba(124,58,237,0.05); }
+
+  .sri-icon { font-size: 1.1rem; }
+
+  .sri-info { flex: 1; }
+  .sri-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; }
+  .sri-level {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+  }
+
+  /* ========= FOOTER ========= */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2.5rem;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dimmer);
+    letter-spacing: 0.05em;
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+
+  /* ========= ANIMATIONS ========= */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-up { animation: fadeUp 0.4s ease forwards; }
+
+  .fade-up:nth-child(1) { animation-delay: 0.05s; }
+  .fade-up:nth-child(2) { animation-delay: 0.1s; }
+  .fade-up:nth-child(3) { animation-delay: 0.15s; }
+  .fade-up:nth-child(4) { animation-delay: 0.2s; }
+
+  /* ========= MOBILE ========= */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .hamburger span {
+    width: 22px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+
+  @media (max-width: 768px) {
+    .hamburger { display: flex; }
+    #sidebar { transform: translateX(-100%); z-index: 99; }
+    #sidebar.open { transform: translateX(0); }
+    #content { margin-left: 0; padding: 1.5rem; }
+    .lesson-body { grid-template-columns: 1fr; }
+    #hero { padding: 2rem 1.5rem; }
+    .hero-stats { gap: 1.5rem; }
+  }
+
+  /* ========= ROADMAP SECTION ========= */
+  .roadmap {
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .roadmap::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--accent2), transparent);
+  }
+
+  .roadmap-item {
+    position: relative;
+    padding: 0 0 2rem 1.5rem;
+  }
+
+  .roadmap-item::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+    transition: all 0.3s;
+  }
+
+  .roadmap-item.done::before { background: var(--accent); }
+
+  .rm-phase {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+  }
+
+  .rm-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .rm-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .rm-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .rm-tag:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ========= CODE PLAYGROUND ========= */
+  .playground-wrap {
+    background: #0d0d14;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-top: 1rem;
+  }
+
+  .playground-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .playground-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .run-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.45rem 1rem;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .run-btn:hover { background: #00dda0; transform: scale(1.02); }
+
+  .playground-editor {
+    width: 100%;
+    min-height: 200px;
+    padding: 1.25rem;
+    background: #0a0a12;
+    border: none;
+    outline: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.7;
+    color: #c9d1d9;
+    resize: vertical;
+  }
+
+  .playground-output {
+    border-top: 1px solid var(--border);
+    padding: 1rem;
+    background: #060609;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: #86efac;
+    min-height: 50px;
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+
+  .output-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dimmer);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .output-error { color: #fca5a5; }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <span>CS</span>ACADEMY
+  </div>
+  <div class="nav-right">
+    <div id="xp-display">⚡ <span id="xp-count">0</span> XP</div>
+    <div class="nav-badge">FREE</div>
+    <div class="hamburger" onclick="toggleSidebar()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="sidebar-section-title">Navigation</div>
+  <div class="sidebar-item active" onclick="showHome()" id="nav-home">
+    <span class="icon">🏠</span>
+    <span class="label">Home</span>
+  </div>
+  <div class="sidebar-item" onclick="showRoadmap()" id="nav-roadmap">
+    <span class="icon">🗺️</span>
+    <span class="label">Roadmap</span>
+  </div>
+  <div class="sidebar-item" onclick="showPlayground()" id="nav-playground">
+    <span class="icon">⚡</span>
+    <span class="label">Playground</span>
+  </div>
+
+  <div class="sidebar-section-title" style="margin-top:0.5rem">🟢 Beginner</div>
+  <!-- Beginner Topics -->
+  <div id="sb-0" class="sidebar-item" onclick="openLesson(0)"><span class="icon">💡</span><span class="label">What is CS?</span><span class="level-dot level-beginner"></span><span class="check">✓</span></div>
+  <div id="sb-1" class="sidebar-item" onclick="openLesson(1)"><span class="icon">🔢</span><span class="label">Binary & Number Systems</span><span class="level-dot level-beginner"></span><span class="check">✓</span></div>
+  <div id="sb-2" class="sidebar-item" onclick="openLesson(2)"><span class="icon">🐍</span><span class="label">Intro to Python</span><span class="level-dot level-beginner"></span><span class="check">✓</span></div>
+  <div id="sb-3" class="sidebar-item" onclick="openLesson(3)"><span class="icon">🔄</span><span class="label">Control Flow</span><span class="level-dot level-beginner"></span><span class="check">✓</span></div>
+  <div id="sb-4" class="sidebar-item" onclick="openLesson(4)"><span class="icon">📦</span><span class="label">Functions & Scope</span><span class="level-dot level-beginner"></span><span class="check">✓</span></div>
+
+  <div class="sidebar-section-title" style="margin-top:0.5rem">🟡 Intermediate</div>
+  <div id="sb-5" class="sidebar-item" onclick="openLesson(5)"><span class="icon">🗃️</span><span class="label">Data Structures</span><span class="level-dot level-intermediate"></span><span class="check">✓</span></div>
+  <div id="sb-6" class="sidebar-item" onclick="openLesson(6)"><span class="icon">🔍</span><span class="label">Algorithms & Sorting</span><span class="level-dot level-intermediate"></span><span class="check">✓</span></div>
+  <div id="sb-7" class="sidebar-item" onclick="openLesson(7)"><span class="icon">🏗️</span><span class="label">OOP Concepts</span><span class="level-dot level-intermediate"></span><span class="check">✓</span></div>
+  <div id="sb-8" class="sidebar-item" onclick="openLesson(8)"><span class="icon">🕸️</span><span class="label">Web Basics (HTML/CSS/JS)</span><span class="level-dot level-intermediate"></span><span class="check">✓</span></div>
+  <div id="sb-9" class="sidebar-item" onclick="openLesson(9)"><span class="icon">🗄️</span><span class="label">Databases & SQL</span><span class="level-dot level-intermediate"></span><span class="check">✓</span></div>
+
+  <div class="sidebar-section-title" style="margin-top:0.5rem">🔴 Advanced</div>
+  <div id="sb-10" class="sidebar-item" onclick="openLesson(10)"><span class="icon">🔁</span><span class="label">Recursion & Backtracking</span><span class="level-dot level-advanced"></span><span class="check">✓</span></div>
+  <div id="sb-11" class="sidebar-item" onclick="openLesson(11)"><span class="icon">📊</span><span class="label">Big-O Complexity</span><span class="level-dot level-advanced"></span><span class="check">✓</span></div>
+  <div id="sb-12" class="sidebar-item" onclick="openLesson(12)"><span class="icon">🌐</span><span class="label">Networking & HTTP</span><span class="level-dot level-advanced"></span><span class="check">✓</span></div>
+  <div id="sb-13" class="sidebar-item" onclick="openLesson(13)"><span class="icon">🔐</span><span class="label">Cryptography & Security</span><span class="level-dot level-advanced"></span><span class="check">✓</span></div>
+
+  <div class="sidebar-section-title" style="margin-top:0.5rem">🟣 Pro</div>
+  <div id="sb-14" class="sidebar-item" onclick="openLesson(14)"><span class="icon">🤖</span><span class="label">AI & Machine Learning</span><span class="level-dot level-pro"></span><span class="check">✓</span></div>
+  <div id="sb-15" class="sidebar-item" onclick="openLesson(15)"><span class="icon">⚙️</span><span class="label">Operating Systems</span><span class="level-dot level-pro"></span><span class="check">✓</span></div>
+  <div id="sb-16" class="sidebar-item" onclick="openLesson(16)"><span class="icon">☁️</span><span class="label">Cloud & DevOps</span><span class="level-dot level-pro"></span><span class="check">✓</span></div>
+  <div id="sb-17" class="sidebar-item" onclick="openLesson(17)"><span class="icon">🧵</span><span class="label">Concurrency & Distributed</span><span class="level-dot level-pro"></span><span class="check">✓</span></div>
+</div>
+
+<!-- MAIN -->
+<main>
+  <div id="content">
+
+    <!-- HOME VIEW -->
+    <div id="home-view">
+      <div id="hero">
+        <div class="hero-tag">Computer Science · Beginner to Pro</div>
+        <h1>Master <span class="hl">Computer Science</span><br>From Zero to Hero</h1>
+        <p class="hero-sub">A structured, hands-on curriculum covering every CS topic — binary systems, algorithms, web, AI, OS, and more. Interactive lessons, quizzes, and a live code playground.</p>
+
+        <div class="hero-stats">
+          <div class="stat"><div class="stat-num">18</div><div class="stat-label">Topics</div></div>
+          <div class="stat"><div class="stat-num">72+</div><div class="stat-label">Concepts</div></div>
+          <div class="stat"><div class="stat-num">4</div><div class="stat-label">Levels</div></div>
+          <div class="stat"><div class="stat-num" id="done-count">0</div><div class="stat-label">Completed</div></div>
+        </div>
+
+        <div class="overall-progress">
+          <div class="progress-label">Overall Progress</div>
+          <div class="progress-bar-outer"><div class="progress-bar-inner" id="main-progress" style="width:0%"></div></div>
+          <div class="progress-pct" id="main-pct">0%</div>
+        </div>
+
+        <div class="hero-cta">
+          <button class="btn-primary" onclick="openLesson(0)">🚀 Start Learning</button>
+          <button class="btn-secondary" onclick="showRoadmap()">🗺️ View Roadmap</button>
+        </div>
+      </div>
+
+      <!-- SEARCH -->
+      <div style="padding: 0 2.5rem 0;">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Search topics... e.g. recursion, SQL, sorting" oninput="handleSearch(this.value)">
+        </div>
+        <div id="search-results" class="search-results"></div>
+      </div>
+
+      <!-- LEVEL CARDS -->
+      <div style="padding: 1.5rem 2.5rem 2rem;">
+        <div class="section-header">
+          <div class="section-tag">Curriculum</div>
+          <div class="section-title-text">Choose Your Level</div>
+          <div class="section-desc">Each level builds on the previous. Start at Beginner and work your way up.</div>
+        </div>
+
+        <div class="level-grid">
+          <div class="level-card beginner fade-up" onclick="openLesson(0)">
+            <div class="lc-icon">🌱</div>
+            <div class="lc-badge b">Beginner</div>
+            <div class="lc-title">Foundations</div>
+            <div class="lc-desc">CS basics, binary, Python, loops, and functions. No prior experience needed.</div>
+            <div class="lc-progress-bar"><div class="lc-progress-fill fill-b" id="prog-b" style="width:0%"></div></div>
+            <div class="lc-topics-count">5 topics · 0/5 done</div>
+          </div>
+          <div class="level-card intermediate fade-up" onclick="openLesson(5)">
+            <div class="lc-icon">⚡</div>
+            <div class="lc-badge i">Intermediate</div>
+            <div class="lc-title">Core CS</div>
+            <div class="lc-desc">Data structures, algorithms, OOP, web dev basics, and databases.</div>
+            <div class="lc-progress-bar"><div class="lc-progress-fill fill-i" id="prog-i" style="width:0%"></div></div>
+            <div class="lc-topics-count">5 topics · 0/5 done</div>
+          </div>
+          <div class="level-card advanced fade-up" onclick="openLesson(10)">
+            <div class="lc-icon">🔥</div>
+            <div class="lc-badge a">Advanced</div>
+            <div class="lc-title">Deep Dive</div>
+            <div class="lc-desc">Recursion, Big-O, networking, and security concepts.</div>
+            <div class="lc-progress-bar"><div class="lc-progress-fill fill-a" id="prog-a" style="width:0%"></div></div>
+            <div class="lc-topics-count">4 topics · 0/4 done</div>
+          </div>
+          <div class="level-card pro fade-up" onclick="openLesson(14)">
+            <div class="lc-icon">🚀</div>
+            <div class="lc-badge p">Pro</div>
+            <div class="lc-title">Expert Topics</div>
+            <div class="lc-desc">AI/ML, operating systems, cloud computing, and distributed systems.</div>
+            <div class="lc-progress-bar"><div class="lc-progress-fill fill-p" id="prog-p" style="width:0%"></div></div>
+            <div class="lc-topics-count">4 topics · 0/4 done</div>
+          </div>
+        </div>
+
+        <!-- HOW TO USE GOOGLE SECTION -->
+        <div class="section-header" style="margin-top:2.5rem">
+          <div class="section-tag">Google Search Tips</div>
+          <div class="section-title-text">Learn CS Using Google</div>
+          <div class="section-desc">Google is your most powerful learning tool. Here's how to use it like a pro developer.</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-bottom:2rem;">
+          <!-- Google tip cards -->
+          <div class="aside-card">
+            <div class="aside-title">🔎 Exact Phrase Search</div>
+            <div class="code-editor-wrap" style="margin:0">
+              <pre style="padding:0.75rem;font-size:0.78rem">"how does recursion work in Python"</pre>
+            </div>
+            <p style="font-size:0.82rem;color:var(--text-dim);margin-top:0.75rem;line-height:1.5">Use quotes for exact phrases. Forces Google to show results with your exact wording.</p>
+          </div>
+
+          <div class="aside-card">
+            <div class="aside-title">🎯 Site-Specific Search</div>
+            <div class="code-editor-wrap" style="margin:0">
+              <pre style="padding:0.75rem;font-size:0.78rem">site:stackoverflow.com binary search</pre>
+            </div>
+            <p style="font-size:0.82rem;color:var(--text-dim);margin-top:0.75rem;line-height:1.5">Search only within a trusted site like Stack Overflow, MDN, or GeeksForGeeks.</p>
+          </div>
+
+          <div class="aside-card">
+            <div class="aside-title">📘 Best Beginner Queries</div>
+            <div style="display:flex;flex-direction:column;gap:0.4rem;margin-top:0.5rem">
+              <div class="rm-tag">"what is an algorithm explained simply"</div>
+              <div class="rm-tag">"Python for beginners tutorial"</div>
+              <div class="rm-tag">"CS50 Harvard free course"</div>
+              <div class="rm-tag">"how does the internet work"</div>
+            </div>
+          </div>
+
+          <div class="aside-card">
+            <div class="aside-title">⚡ Best Advanced Queries</div>
+            <div style="display:flex;flex-direction:column;gap:0.4rem;margin-top:0.5rem">
+              <div class="rm-tag">"time complexity cheat sheet"</div>
+              <div class="rm-tag">"system design interview guide"</div>
+              <div class="rm-tag">"distributed systems CAP theorem"</div>
+              <div class="rm-tag">"machine learning roadmap 2024"</div>
+            </div>
+          </div>
+
+          <div class="aside-card">
+            <div class="aside-title">🌐 Best Free Resources</div>
+            <div class="resource-list" style="margin-top:0.5rem">
+              <a href="https://cs50.harvard.edu" target="_blank" class="resource-item">🎓 <span>CS50 Harvard</span><span class="r-tag">FREE</span></a>
+              <a href="https://www.khanacademy.org/computing" target="_blank" class="resource-item">📚 <span>Khan Academy CS</span><span class="r-tag">FREE</span></a>
+              <a href="https://developer.mozilla.org" target="_blank" class="resource-item">🌐 <span>MDN Web Docs</span><span class="r-tag">FREE</span></a>
+              <a href="https://www.geeksforgeeks.org" target="_blank" class="resource-item">💻 <span>GeeksForGeeks</span><span class="r-tag">FREE</span></a>
+              <a href="https://leetcode.com" target="_blank" class="resource-item">⚡ <span>LeetCode</span><span class="r-tag">FREE</span></a>
+              <a href="https://roadmap.sh" target="_blank" class="resource-item">🗺️ <span>Roadmap.sh</span><span class="r-tag">FREE</span></a>
+            </div>
+          </div>
+
+          <div class="aside-card">
+            <div class="aside-title">💡 Google Search Operators</div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.5rem">
+              <div class="term-item"><div class="term-name">filetype:pdf</div><div class="term-def">Find PDF textbooks: "data structures filetype:pdf"</div></div>
+              <div class="term-item"><div class="term-name">intitle:</div><div class="term-def">Search in page title: "intitle:tutorial sorting algorithms"</div></div>
+              <div class="term-item"><div class="term-name">OR / -</div><div class="term-def">Combine: "Python OR Java tutorial -beginner"</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LESSON VIEW -->
+    <div id="lesson-view"></div>
+
+    <!-- ROADMAP VIEW -->
+    <div id="roadmap-view" style="display:none; padding: 0 2.5rem 2rem;">
+      <div class="section-header">
+        <div class="section-tag">Full Path</div>
+        <div class="section-title-text">CS Learning Roadmap</div>
+        <div class="section-desc">Follow this structured path from complete beginner to professional software engineer.</div>
+      </div>
+      <div class="roadmap">
+        <div class="roadmap-item">
+          <div class="rm-phase">Phase 1 · Beginner</div>
+          <div class="rm-title">🌱 Foundations of Computing</div>
+          <div class="rm-items">
+            <div class="rm-tag" onclick="openLesson(0)">What is CS?</div>
+            <div class="rm-tag" onclick="openLesson(1)">Binary & Numbers</div>
+            <div class="rm-tag" onclick="openLesson(2)">Python Basics</div>
+            <div class="rm-tag" onclick="openLesson(3)">Control Flow</div>
+            <div class="rm-tag" onclick="openLesson(4)">Functions</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="rm-phase">Phase 2 · Intermediate</div>
+          <div class="rm-title">⚡ Core Computer Science</div>
+          <div class="rm-items">
+            <div class="rm-tag" onclick="openLesson(5)">Data Structures</div>
+            <div class="rm-tag" onclick="openLesson(6)">Algorithms</div>
+            <div class="rm-tag" onclick="openLesson(7)">OOP</div>
+            <div class="rm-tag" onclick="openLesson(8)">HTML/CSS/JS</div>
+            <div class="rm-tag" onclick="openLesson(9)">SQL</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="rm-phase">Phase 3 · Advanced</div>
+          <div class="rm-title">🔥 Advanced Topics</div>
+          <div class="rm-items">
+            <div class="rm-tag" onclick="openLesson(10)">Recursion</div>
+            <div class="rm-tag" onclick="openLesson(11)">Big-O</div>
+            <div class="rm-tag" onclick="openLesson(12)">Networking</div>
+            <div class="rm-tag" onclick="openLesson(13)">Security</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="rm-phase">Phase 4 · Pro</div>
+          <div class="rm-title">🚀 Professional Engineering</div>
+          <div class="rm-items">
+            <div class="rm-tag" onclick="openLesson(14)">AI & ML</div>
+            <div class="rm-tag" onclick="openLesson(15)">OS Concepts</div>
+            <div class="rm-tag" onclick="openLesson(16)">Cloud & DevOps</div>
+            <div class="rm-tag" onclick="openLesson(17)">Distributed Systems</div>
+          </div>
+        </div>
+        <div class="roadmap-item">
+          <div class="rm-phase">Phase 5 · Expert</div>
+          <div class="rm-title">👑 Mastery & Career</div>
+          <div class="rm-items">
+            <div class="rm-tag">System Design</div>
+            <div class="rm-tag">Open Source</div>
+            <div class="rm-tag">LeetCode Practice</div>
+            <div class="rm-tag">Build Projects</div>
+            <div class="rm-tag">Contribute to GitHub</div>
+            <div class="rm-tag">Tech Interviews</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLAYGROUND VIEW -->
+    <div id="playground-view" style="display:none; padding: 0 2.5rem 2rem;">
+      <div class="section-header">
+        <div class="section-tag">Code Playground</div>
+        <div class="section-title-text">JavaScript Playground</div>
+        <div class="section-desc">Write and run JavaScript code right in your browser. Experiment freely!</div>
+      </div>
+      <div class="playground-wrap">
+        <div class="playground-bar">
+          <div class="playground-title">📝 JavaScript · Live Editor</div>
+          <button class="run-btn" onclick="runCode()">▶ Run Code</button>
+        </div>
+        <textarea class="playground-editor" id="code-editor" spellcheck="false">// Welcome to the CS Academy Playground!
+// Write JavaScript code and click "Run Code"
+
+// Example: Fibonacci sequence
+function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+// Print first 10 Fibonacci numbers
+for (let i = 0; i < 10; i++) {
+  console.log(`F(${i}) = ${fibonacci(i)}`);
+}
+
+// Example: Sorting array
+const arr = [64, 34, 25, 12, 22, 11, 90];
+const sorted = [...arr].sort((a, b) => a - b);
+console.log("\\nOriginal:", arr.join(", "));
+console.log("Sorted:  ", sorted.join(", "));</textarea>
+        <div class="playground-output">
+          <div class="output-label">// Output</div>
+          <div id="output-text">Click "Run Code" to execute...</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;margin-top:1.5rem">
+        <button class="btn-secondary" onclick="loadSnippet('hello')">📋 Hello World</button>
+        <button class="btn-secondary" onclick="loadSnippet('loop')">🔄 For Loop</button>
+        <button class="btn-secondary" onclick="loadSnippet('array')">📦 Arrays</button>
+        <button class="btn-secondary" onclick="loadSnippet('object')">🏗️ Objects</button>
+        <button class="btn-secondary" onclick="loadSnippet('recursion')">🔁 Recursion</button>
+        <button class="btn-secondary" onclick="loadSnippet('sort')">📊 Bubble Sort</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  CS Academy · Open for all learners · Built with ❤️ ·
+  <a href="https://cs50.harvard.edu" target="_blank">CS50 Harvard</a> ·
+  <a href="https://developer.mozilla.org" target="_blank">MDN Docs</a>
+</footer>
+
+</div>
+
+<!-- XP TOAST -->
+<div id="xp-toast">
+  <div class="xp-icon">🏆</div>
+  <div>
+    <div style="font-weight:700;font-size:0.9rem">Lesson Complete!</div>
+    <div class="xp-amount" id="xp-amount">+50 XP earned</div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const lessons = [
+  // 0
+  {
+    id: 0, level: 'beginner', icon: '💡',
+    title: 'What is Computer Science?',
+    time: '15 min', xp: 30,
+    keywords: ['CS', 'computer science', 'what is', 'intro'],
+    theory: `
+      <h2>What is Computer Science?</h2>
+      <p>Computer Science (CS) is the study of computation, algorithms, data structures, programming languages, and the theory of what machines can and cannot do.</p>
+      <div class="info-box"><div class="info-title">💡 Key Insight</div>CS is NOT just about coding. It's about <strong>problem solving</strong> — breaking complex problems into smaller steps a machine can execute.</div>
+      <h3>Core Branches of CS</h3>
+      <ul>
+        <li><strong>Algorithms & Data Structures</strong> — How to store and process data efficiently</li>
+        <li><strong>Programming Languages</strong> — How humans communicate with machines</li>
+        <li><strong>Computer Architecture</strong> — How hardware physically works</li>
+        <li><strong>Artificial Intelligence</strong> — Making machines that "think"</li>
+        <li><strong>Networking</strong> — How computers communicate globally</li>
+        <li><strong>Databases</strong> — How data is stored and retrieved</li>
+      </ul>
+      <h2>The Abstraction Ladder</h2>
+      <p>Modern computing is built on <strong>layers of abstraction</strong>. Each layer hides complexity from the layer above it:</p>
+      <ol>
+        <li><strong>Hardware</strong> — transistors, silicon chips, electricity</li>
+        <li><strong>Machine Code</strong> — raw 0s and 1s the CPU reads</li>
+        <li><strong>Assembly Language</strong> — human-readable machine code</li>
+        <li><strong>Operating System</strong> — manages hardware resources</li>
+        <li><strong>High-Level Language</strong> — Python, Java, JavaScript</li>
+        <li><strong>Applications</strong> — apps, websites, games</li>
+      </ol>
+      <div class="warn-box"><div class="warn-title">🎯 Career Paths</div>Knowing CS opens doors to: Web Developer, Data Scientist, Security Engineer, AI Researcher, Game Developer, DevOps, and many more.</div>
+      <h2>The History in 60 Seconds</h2>
+      <p><strong>1936</strong>: Alan Turing proposes the theoretical Turing Machine — the foundation of all computation. <strong>1945</strong>: First programmable computer (ENIAC). <strong>1969</strong>: Internet precursor ARPANET is born. <strong>1991</strong>: World Wide Web invented by Tim Berners-Lee. <strong>2007</strong>: iPhone launches — computing in your pocket. <strong>2022</strong>: AI (like ChatGPT) enters mainstream.</p>
+    `,
+    code: `<span class="cmt"># Everything starts with simple instructions</span>
+<span class="cmt"># A computer only understands 0s and 1s (binary)</span>
+
+<span class="cmt"># But we write in high-level Python like this:</span>
+<span class="kw">print</span>(<span class="str">"Hello, Computer Science!"</span>)
+
+<span class="cmt"># A computer program = a list of steps</span>
+<span class="cmt"># This is an "algorithm" to find the max:</span>
+<span class="kw">def</span> <span class="fn">find_max</span>(numbers):
+    max_val = numbers[<span class="num">0</span>]
+    <span class="kw">for</span> num <span class="kw">in</span> numbers:
+        <span class="kw">if</span> num > max_val:
+            max_val = num
+    <span class="kw">return</span> max_val
+
+result = find_max([<span class="num">3</span>, <span class="num">7</span>, <span class="num">1</span>, <span class="num">9</span>, <span class="num">4</span>])
+<span class="kw">print</span>(<span class="str">f"Max value: </span>{result}<span class="str">"</span>)  <span class="cmt"># → 9</span>`,
+    quiz: [
+      { q: "What is the primary goal of Computer Science?", opts: ["Building computers", "Problem solving with computation", "Designing websites", "Writing code"], ans: 1, fb: "CS is fundamentally about problem solving — how to represent problems and compute solutions efficiently." },
+      { q: "Who is considered the father of theoretical computer science?", opts: ["Bill Gates", "Alan Turing", "Tim Berners-Lee", "Linus Torvalds"], ans: 1, fb: "Alan Turing proposed the Turing Machine in 1936, forming the theoretical basis for all computers." },
+      { q: "What is 'abstraction' in CS?", opts: ["Making code complex", "Hiding complexity behind simple interfaces", "Running faster programs", "Using fewer variables"], ans: 1, fb: "Abstraction lets us work at higher levels without understanding all low-level details." }
+    ],
+    terms: [
+      { name: "Algorithm", def: "A step-by-step procedure to solve a problem" },
+      { name: "Abstraction", def: "Hiding complexity behind a simpler interface" },
+      { name: "Computation", def: "Any process that can be carried out by a computer" }
+    ],
+    resources: [
+      { icon: "🎓", label: "CS50 Harvard (Free Full Course)", url: "https://cs50.harvard.edu", tag: "MUST-WATCH" },
+      { icon: "📺", label: "Crash Course CS (YouTube)", url: "https://www.youtube.com/playlist?list=PL8dPuuaLjXtNlUrzyH5r6jN9ulIgZBpdo", tag: "VIDEO" },
+      { icon: "📖", label: "Khan Academy Computing", url: "https://www.khanacademy.org/computing", tag: "FREE" }
+    ]
+  },
+  // 1
+  {
+    id: 1, level: 'beginner', icon: '🔢',
+    title: 'Binary & Number Systems',
+    time: '20 min', xp: 40,
+    keywords: ['binary', 'number systems', 'hex', 'bits', 'bytes', 'decimal'],
+    theory: `
+      <h2>Why Binary?</h2>
+      <p>Computers are built from transistors — tiny switches that are either <strong>ON (1)</strong> or <strong>OFF (0)</strong>. This is why everything in a computer boils down to binary (base-2).</p>
+      <h3>Number Systems Comparison</h3>
+      <ul>
+        <li><strong>Decimal (Base-10)</strong>: Uses digits 0–9. What humans use daily. e.g. 42</li>
+        <li><strong>Binary (Base-2)</strong>: Uses digits 0–1. What computers use. e.g. 101010</li>
+        <li><strong>Hexadecimal (Base-16)</strong>: Uses 0–9 and A–F. Used in memory addresses, colors. e.g. 2A</li>
+        <li><strong>Octal (Base-8)</strong>: Uses digits 0–7. Used in file permissions (Linux).</li>
+      </ul>
+      <h2>Converting Binary to Decimal</h2>
+      <p>Each bit position represents a power of 2. Read from right to left (2⁰, 2¹, 2², 2³...):</p>
+      <div class="info-box"><div class="info-title">📐 Example</div><strong>1011</strong> in binary = 1×2³ + 0×2² + 1×2¹ + 1×2⁰ = 8 + 0 + 2 + 1 = <strong>11</strong> in decimal</div>
+      <h3>Converting Decimal to Binary</h3>
+      <p>Repeatedly divide by 2 and record the remainders (read remainders bottom-to-top):</p>
+      <ol>
+        <li>13 ÷ 2 = 6 remainder <strong>1</strong></li>
+        <li>6 ÷ 2 = 3 remainder <strong>0</strong></li>
+        <li>3 ÷ 2 = 1 remainder <strong>1</strong></li>
+        <li>1 ÷ 2 = 0 remainder <strong>1</strong></li>
+        <li>Reading remainders bottom-up: <strong>1101</strong></li>
+      </ol>
+      <h2>Bits and Bytes</h2>
+      <ul>
+        <li><strong>1 bit</strong> = single 0 or 1</li>
+        <li><strong>1 byte</strong> = 8 bits (can store 0–255)</li>
+        <li><strong>1 KB</strong> = 1,024 bytes</li>
+        <li><strong>1 MB</strong> = 1,024 KB</li>
+        <li><strong>1 GB</strong> = 1,024 MB</li>
+        <li><strong>1 TB</strong> = 1,024 GB</li>
+      </ul>
+      <div class="warn-box"><div class="warn-title">🧠 Remember</div>Everything your computer stores — text, images, music, videos — is ultimately stored as binary numbers. A letter 'A' = 01000001 in ASCII encoding.</div>
+    `,
+    code: `<span class="cmt"># Binary conversions in Python</span>
+
+<span class="cmt"># Decimal → Binary</span>
+num = <span class="num">42</span>
+<span class="kw">print</span>(<span class="fn">bin</span>(num))          <span class="cmt"># → 0b101010</span>
+<span class="kw">print</span>(<span class="fn">bin</span>(num)[<span class="num">2</span>:])      <span class="cmt"># → 101010 (no prefix)</span>
+
+<span class="cmt"># Binary → Decimal</span>
+binary_str = <span class="str">"101010"</span>
+<span class="kw">print</span>(<span class="fn">int</span>(binary_str, <span class="num">2</span>)) <span class="cmt"># → 42</span>
+
+<span class="cmt"># Decimal → Hexadecimal</span>
+<span class="kw">print</span>(<span class="fn">hex</span>(<span class="num">255</span>))           <span class="cmt"># → 0xff</span>
+<span class="kw">print</span>(<span class="fn">hex</span>(<span class="num">255</span>)[<span class="num">2</span>:])       <span class="cmt"># → ff</span>
+
+<span class="cmt"># Manual binary conversion</span>
+<span class="kw">def</span> <span class="fn">to_binary</span>(n):
+    <span class="kw">if</span> n == <span class="num">0</span>: <span class="kw">return</span> <span class="str">"0"</span>
+    bits = []
+    <span class="kw">while</span> n > <span class="num">0</span>:
+        bits.append(<span class="fn">str</span>(n % <span class="num">2</span>))
+        n //= <span class="num">2</span>
+    <span class="kw">return</span> <span class="str">""</span>.join(<span class="fn">reversed</span>(bits))
+
+<span class="kw">print</span>(to_binary(<span class="num">13</span>))  <span class="cmt"># → 1101</span>`,
+    quiz: [
+      { q: "What is the binary representation of decimal 10?", opts: ["1100", "1010", "0110", "1001"], ans: 1, fb: "10 = 8+2 = 1010 in binary. Check: 1×8 + 0×4 + 1×2 + 0×1 = 10 ✓" },
+      { q: "How many bits are in 1 byte?", opts: ["4", "16", "8", "32"], ans: 2, fb: "1 byte = 8 bits. A byte can represent 2⁸ = 256 different values (0-255)." },
+      { q: "What is hex 'FF' in decimal?", opts: ["155", "255", "100", "256"], ans: 1, fb: "F=15, so FF = 15×16 + 15 = 240 + 15 = 255." }
+    ],
+    terms: [
+      { name: "Bit", def: "The smallest unit of data — a single 0 or 1" },
+      { name: "Byte", def: "8 bits; can represent values 0–255" },
+      { name: "Hexadecimal", def: "Base-16 system using 0-9 and A-F" }
+    ],
+    resources: [
+      { icon: "📖", label: "Binary on Khan Academy", url: "https://www.khanacademy.org/computing/computers-and-the-internet/xcae6f4a7ff015e7d:digital-information", tag: "FREE" }
+    ]
+  },
+  // 2
+  {
+    id: 2, level: 'beginner', icon: '🐍',
+    title: 'Introduction to Python',
+    time: '30 min', xp: 50,
+    keywords: ['python', 'variables', 'print', 'input', 'strings', 'integers', 'programming language'],
+    theory: `
+      <h2>Why Python?</h2>
+      <p>Python is the world's most popular programming language for beginners and professionals alike. It's used in <strong>web development, data science, AI, automation, and scripting</strong>.</p>
+      <div class="info-box"><div class="info-title">✅ Python's Philosophy</div>"Readability counts." Python code reads almost like English, making it the perfect first language.</div>
+      <h3>Variables and Data Types</h3>
+      <ul>
+        <li><strong>int</strong>: Whole numbers — <code>age = 25</code></li>
+        <li><strong>float</strong>: Decimal numbers — <code>price = 9.99</code></li>
+        <li><strong>str</strong>: Text — <code>name = "Alice"</code></li>
+        <li><strong>bool</strong>: True/False — <code>is_open = True</code></li>
+        <li><strong>list</strong>: Ordered collection — <code>colors = ["red", "blue"]</code></li>
+        <li><strong>dict</strong>: Key-value pairs — <code>person = {"name": "Bob", "age": 30}</code></li>
+      </ul>
+      <h2>Input and Output</h2>
+      <p><code>print()</code> outputs text. <code>input()</code> gets text from the user. All <code>input()</code> returns strings — convert with <code>int()</code> or <code>float()</code> if needed.</p>
+      <h2>String Operations</h2>
+      <p>Strings are sequences of characters. Python makes string manipulation powerful with f-strings, slicing, and built-in methods:</p>
+      <ul>
+        <li><code>"Hello" + " World"</code> → concatenation</li>
+        <li><code>name.upper()</code> → "ALICE"</li>
+        <li><code>name[0]</code> → first character</li>
+        <li><code>f"Hi, {name}!"</code> → f-string formatting</li>
+      </ul>
+      <h2>Python Is Interpreted</h2>
+      <p>Unlike C or Java, Python code runs line-by-line through an <strong>interpreter</strong> — no compilation step needed. This makes development faster but execution slightly slower.</p>
+    `,
+    code: `<span class="cmt"># Python Basics — your first program!</span>
+
+<span class="cmt"># Variables</span>
+name = <span class="str">"Alice"</span>
+age = <span class="num">20</span>
+gpa = <span class="num">3.8</span>
+is_student = <span class="kw">True</span>
+
+<span class="cmt"># Print output</span>
+<span class="kw">print</span>(<span class="str">"Hello, World!"</span>)
+<span class="kw">print</span>(<span class="fn">f</span><span class="str">"Name: {name}, Age: {age}"</span>)
+
+<span class="cmt"># Data types</span>
+<span class="kw">print</span>(<span class="fn">type</span>(name))    <span class="cmt"># &lt;class 'str'&gt;</span>
+<span class="kw">print</span>(<span class="fn">type</span>(age))     <span class="cmt"># &lt;class 'int'&gt;</span>
+
+<span class="cmt"># String methods</span>
+msg = <span class="str">"hello python"</span>
+<span class="kw">print</span>(msg.<span class="fn">upper</span>())    <span class="cmt"># HELLO PYTHON</span>
+<span class="kw">print</span>(msg.<span class="fn">title</span>())    <span class="cmt"># Hello Python</span>
+<span class="kw">print</span>(msg[<span class="num">6</span>:])        <span class="cmt"># python</span>
+
+<span class="cmt"># List</span>
+fruits = [<span class="str">"apple"</span>, <span class="str">"banana"</span>, <span class="str">"cherry"</span>]
+<span class="kw">print</span>(fruits[<span class="num">0</span>])      <span class="cmt"># apple</span>
+fruits.<span class="fn">append</span>(<span class="str">"mango"</span>)
+<span class="kw">print</span>(<span class="fn">len</span>(fruits))    <span class="cmt"># 4</span>`,
+    quiz: [
+      { q: "What does print(type(3.14)) output?", opts: ["int", "<class 'float'>", "number", "decimal"], ans: 1, fb: "3.14 is a floating-point number, so type() returns <class 'float'>." },
+      { q: "How do you get user input in Python?", opts: ["get()", "read()", "input()", "scan()"], ans: 2, fb: "input() prompts the user and returns their input as a string." },
+      { q: "What does name[0] do if name = 'Python'?", opts: ["Returns 'Python'", "Returns 'P'", "Returns 0", "Error"], ans: 1, fb: "String indexing starts at 0, so name[0] = 'P' (first character)." }
+    ],
+    terms: [
+      { name: "Variable", def: "A named container that stores a value" },
+      { name: "String", def: "A sequence of characters (text)" },
+      { name: "Interpreter", def: "Program that executes code line by line" }
+    ],
+    resources: [
+      { icon: "🐍", label: "Official Python Tutorial", url: "https://docs.python.org/3/tutorial/", tag: "OFFICIAL" },
+      { icon: "📖", label: "Automate the Boring Stuff", url: "https://automatetheboringstuff.com", tag: "FREE BOOK" }
+    ]
+  },
+  // 3
+  {
+    id: 3, level: 'beginner', icon: '🔄',
+    title: 'Control Flow',
+    time: '25 min', xp: 45,
+    keywords: ['if', 'else', 'for', 'while', 'loop', 'conditional', 'boolean'],
+    theory: `
+      <h2>What is Control Flow?</h2>
+      <p>By default, code runs from top to bottom. <strong>Control flow</strong> structures let you make decisions and repeat actions — the backbone of any program's logic.</p>
+      <h2>Conditionals (if / elif / else)</h2>
+      <p>Use conditionals to run code only when a condition is true:</p>
+      <ul>
+        <li><code>if condition:</code> — runs if condition is True</li>
+        <li><code>elif condition:</code> — checked if previous was False</li>
+        <li><code>else:</code> — runs if all above were False</li>
+      </ul>
+      <div class="info-box"><div class="info-title">📐 Comparison Operators</div><code>== != > < >= <=</code> — Return True or False. Use <code>and</code>, <code>or</code>, <code>not</code> to combine conditions.</div>
+      <h2>For Loops</h2>
+      <p>A <code>for</code> loop iterates over a sequence (list, string, range):</p>
+      <ul>
+        <li><code>for i in range(5):</code> — runs 5 times (0,1,2,3,4)</li>
+        <li><code>for item in my_list:</code> — iterates over each element</li>
+        <li><code>range(start, stop, step)</code> — e.g. range(0, 10, 2) = 0,2,4,6,8</li>
+      </ul>
+      <h2>While Loops</h2>
+      <p>A <code>while</code> loop repeats as long as a condition remains True. Be careful of infinite loops!</p>
+      <ul>
+        <li><code>break</code> — exits the loop immediately</li>
+        <li><code>continue</code> — skips to the next iteration</li>
+      </ul>
+      <div class="warn-box"><div class="warn-title">⚠️ Infinite Loop Warning</div>A while loop with a condition that never becomes False runs forever. Always ensure the condition can become False, or use <code>break</code>.</div>
+    `,
+    code: `<span class="cmt"># Control Flow Examples</span>
+
+<span class="cmt"># 1. If / elif / else</span>
+score = <span class="num">85</span>
+<span class="kw">if</span> score >= <span class="num">90</span>:
+    <span class="kw">print</span>(<span class="str">"Grade: A"</span>)
+<span class="kw">elif</span> score >= <span class="num">80</span>:
+    <span class="kw">print</span>(<span class="str">"Grade: B"</span>)   <span class="cmt"># ← this runs</span>
+<span class="kw">elif</span> score >= <span class="num">70</span>:
+    <span class="kw">print</span>(<span class="str">"Grade: C"</span>)
+<span class="kw">else</span>:
+    <span class="kw">print</span>(<span class="str">"Grade: F"</span>)
+
+<span class="cmt"># 2. For loop</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>):
+    <span class="kw">print</span>(<span class="fn">f</span><span class="str">"{i} × 3 = {i*3}"</span>)
+
+<span class="cmt"># 3. While loop</span>
+count = <span class="num">0</span>
+<span class="kw">while</span> count < <span class="num">5</span>:
+    <span class="kw">print</span>(<span class="fn">f</span><span class="str">"count = {count}"</span>)
+    count += <span class="num">1</span>
+
+<span class="cmt"># 4. Loop with break</span>
+<span class="kw">for</span> num <span class="kw">in</span> [<span class="num">2</span>,<span class="num">4</span>,<span class="num">7</span>,<span class="num">8</span>,<span class="num">10</span>]:
+    <span class="kw">if</span> num % <span class="num">2</span> != <span class="num">0</span>:
+        <span class="kw">print</span>(<span class="fn">f</span><span class="str">"First odd: {num}"</span>)
+        <span class="kw">break</span>`,
+    quiz: [
+      { q: "What does 'elif' stand for?", opts: ["else if", "extra loop", "end loop if", "element if"], ans: 0, fb: "elif = 'else if'. It's checked only when all previous if/elif conditions were False." },
+      { q: "What does range(2, 8, 2) produce?", opts: ["[2,3,4,5,6,7]", "[2,4,6]", "[2,4,6,8]", "[0,2,4,6]"], ans: 1, fb: "range(start=2, stop=8, step=2) produces 2, 4, 6 — stops before 8." },
+      { q: "Which keyword immediately exits a loop?", opts: ["exit", "stop", "return", "break"], ans: 3, fb: "break immediately terminates the current loop, regardless of the condition." }
+    ],
+    terms: [
+      { name: "Conditional", def: "A statement that runs code only when a condition is true" },
+      { name: "Iteration", def: "Repeating a block of code multiple times" },
+      { name: "Break", def: "Keyword that immediately exits a loop" }
+    ],
+    resources: [
+      { icon: "📖", label: "W3Schools Python Conditions", url: "https://www.w3schools.com/python/python_conditions.asp", tag: "GUIDE" }
+    ]
+  },
+  // 4
+  {
+    id: 4, level: 'beginner', icon: '📦',
+    title: 'Functions & Scope',
+    time: '25 min', xp: 45,
+    keywords: ['functions', 'def', 'return', 'parameters', 'scope', 'arguments'],
+    theory: `
+      <h2>What is a Function?</h2>
+      <p>A function is a <strong>reusable block of code</strong> that performs a specific task. Functions are the foundation of clean, DRY (Don't Repeat Yourself) code.</p>
+      <h3>Benefits</h3>
+      <ul>
+        <li><strong>Reusability</strong>: Write once, use many times</li>
+        <li><strong>Modularity</strong>: Break complex problems into small pieces</li>
+        <li><strong>Readability</strong>: Named functions explain what code does</li>
+        <li><strong>Testing</strong>: Easier to test individual pieces</li>
+      </ul>
+      <h2>Parameters vs. Arguments</h2>
+      <p><strong>Parameters</strong> are the variable names in the function definition. <strong>Arguments</strong> are the actual values passed when calling the function.</p>
+      <div class="info-box"><div class="info-title">📐 Default Parameters</div>You can give parameters default values: <code>def greet(name, greeting="Hello"):</code> — if greeting isn't passed, it defaults to "Hello".</div>
+      <h2>Return Values</h2>
+      <p>A function can <strong>return</strong> a value to the caller. Without <code>return</code>, a function returns <code>None</code>.</p>
+      <h2>Variable Scope</h2>
+      <p>Scope determines where a variable is accessible:</p>
+      <ul>
+        <li><strong>Local scope</strong>: Variables created inside a function — only accessible there</li>
+        <li><strong>Global scope</strong>: Variables created outside functions — accessible everywhere</li>
+        <li><strong>LEGB Rule</strong>: Python looks up variables in Local → Enclosing → Global → Built-in order</li>
+      </ul>
+    `,
+    code: `<span class="cmt"># Functions in Python</span>
+
+<span class="cmt"># Basic function</span>
+<span class="kw">def</span> <span class="fn">greet</span>(name):
+    <span class="kw">return</span> <span class="fn">f</span><span class="str">"Hello, {name}!"</span>
+
+<span class="kw">print</span>(<span class="fn">greet</span>(<span class="str">"World"</span>))  <span class="cmt"># Hello, World!</span>
+
+<span class="cmt"># Default parameter</span>
+<span class="kw">def</span> <span class="fn">power</span>(base, exp=<span class="num">2</span>):
+    <span class="kw">return</span> base ** exp
+
+<span class="kw">print</span>(<span class="fn">power</span>(<span class="num">3</span>))     <span class="cmt"># 9 (3²)</span>
+<span class="kw">print</span>(<span class="fn">power</span>(<span class="num">2</span>, <span class="num">8</span>)) <span class="cmt"># 256 (2⁸)</span>
+
+<span class="cmt"># Multiple return values</span>
+<span class="kw">def</span> <span class="fn">min_max</span>(nums):
+    <span class="kw">return</span> <span class="fn">min</span>(nums), <span class="fn">max</span>(nums)
+
+lo, hi = <span class="fn">min_max</span>([<span class="num">3</span>, <span class="num">1</span>, <span class="num">9</span>, <span class="num">4</span>, <span class="num">6</span>])
+<span class="kw">print</span>(<span class="fn">f</span><span class="str">"Min: {lo}, Max: {hi}"</span>)
+
+<span class="cmt"># Scope example</span>
+x = <span class="num">10</span>  <span class="cmt"># global</span>
+
+<span class="kw">def</span> <span class="fn">show_scope</span>():
+    x = <span class="num">20</span>  <span class="cmt"># local — shadows global</span>
+    <span class="kw">print</span>(<span class="str">"Inside:"</span>, x)  <span class="cmt"># 20</span>
+
+<span class="fn">show_scope</span>()
+<span class="kw">print</span>(<span class="str">"Outside:"</span>, x)    <span class="cmt"># 10 (unchanged)</span>`,
+    quiz: [
+      { q: "What keyword is used to define a function in Python?", opts: ["function", "func", "def", "fn"], ans: 2, fb: "Python uses 'def' (short for define) to create functions: def my_function():" },
+      { q: "What does a function return if no return statement is used?", opts: ["0", "False", "None", "Empty string"], ans: 2, fb: "In Python, a function without a return statement implicitly returns None." },
+      { q: "What is a local variable?", opts: ["A global variable", "A variable inside a function, only accessible there", "A constant", "A variable in main()"], ans: 1, fb: "Local variables are created inside functions and can only be accessed within that function." }
+    ],
+    terms: [
+      { name: "Function", def: "A reusable, named block of code" },
+      { name: "Return", def: "Keyword to send a value back from a function" },
+      { name: "Scope", def: "The region of code where a variable is accessible" }
+    ],
+    resources: [
+      { icon: "📖", label: "Python Functions Guide", url: "https://realpython.com/defining-your-own-python-function/", tag: "GUIDE" }
+    ]
+  },
+  // 5
+  {
+    id: 5, level: 'intermediate', icon: '🗃️',
+    title: 'Data Structures',
+    time: '35 min', xp: 60,
+    keywords: ['array', 'list', 'stack', 'queue', 'linked list', 'tree', 'hash table', 'dictionary'],
+    theory: `
+      <h2>What Are Data Structures?</h2>
+      <p>A data structure is a way to <strong>organize and store data</strong> so it can be accessed and modified efficiently. Choosing the right data structure is crucial for writing fast programs.</p>
+      <h3>Linear Data Structures</h3>
+      <ul>
+        <li><strong>Array/List</strong>: Ordered, indexed. O(1) access, O(n) search. Python: <code>[]</code></li>
+        <li><strong>Stack</strong>: LIFO (Last In, First Out). Like a stack of plates. Push/pop from top.</li>
+        <li><strong>Queue</strong>: FIFO (First In, First Out). Like a line. Enqueue/dequeue.</li>
+        <li><strong>Linked List</strong>: Nodes pointing to next node. O(1) insert/delete, O(n) access.</li>
+      </ul>
+      <h3>Non-Linear Data Structures</h3>
+      <ul>
+        <li><strong>Tree</strong>: Hierarchical. Root node → children. Binary Search Tree enables O(log n) search.</li>
+        <li><strong>Graph</strong>: Nodes (vertices) connected by edges. Used in social networks, maps.</li>
+        <li><strong>Heap</strong>: Tree with heap property (min/max at root). Priority queues use heaps.</li>
+      </ul>
+      <h3>Key-Value Structures</h3>
+      <ul>
+        <li><strong>Hash Table / Dictionary</strong>: Key → Value mapping. O(1) average lookup. Python: <code>{}</code></li>
+        <li><strong>Set</strong>: Unordered unique elements. O(1) membership test. Python: <code>set()</code></li>
+      </ul>
+      <div class="info-box"><div class="info-title">🔑 Choosing a Data Structure</div>Ask yourself: Do you need fast <em>access</em>? Use array. Fast <em>search</em>? Use hash table or BST. Order matters with <em>LIFO</em>? Use stack. Queue items? Use deque.</div>
+    `,
+    code: `<span class="cmt"># Key data structures in Python</span>
+<span class="kw">from</span> collections <span class="kw">import</span> deque
+
+<span class="cmt"># Stack (LIFO)</span>
+stack = []
+stack.<span class="fn">append</span>(<span class="num">1</span>)
+stack.<span class="fn">append</span>(<span class="num">2</span>)
+stack.<span class="fn">append</span>(<span class="num">3</span>)
+<span class="kw">print</span>(stack.<span class="fn">pop</span>())  <span class="cmt"># 3 (last in, first out)</span>
+
+<span class="cmt"># Queue (FIFO)</span>
+queue = deque([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>])
+queue.<span class="fn">append</span>(<span class="num">4</span>)         <span class="cmt"># enqueue</span>
+<span class="kw">print</span>(queue.<span class="fn">popleft</span>()) <span class="cmt"># 1 (first in, first out)</span>
+
+<span class="cmt"># Hash Table (Dictionary)</span>
+phone_book = {
+    <span class="str">"Alice"</span>: <span class="str">"555-1234"</span>,
+    <span class="str">"Bob"</span>:   <span class="str">"555-5678"</span>
+}
+<span class="kw">print</span>(phone_book[<span class="str">"Alice"</span>])  <span class="cmt"># O(1) lookup</span>
+
+<span class="cmt"># Set — unique elements</span>
+s = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">2</span>, <span class="num">1</span>}
+<span class="kw">print</span>(s)   <span class="cmt"># {1, 2, 3}</span>
+
+<span class="cmt"># Simple linked list node</span>
+<span class="kw">class</span> <span class="cls">Node</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, val):
+        <span class="var">self</span>.val = val
+        <span class="var">self</span>.next = <span class="kw">None</span>`,
+    quiz: [
+      { q: "Which data structure uses LIFO (Last In, First Out) ordering?", opts: ["Queue", "Array", "Stack", "Linked List"], ans: 2, fb: "A Stack is LIFO — the last element added is the first to be removed. Think of a stack of plates." },
+      { q: "What is the average time complexity for lookup in a hash table?", opts: ["O(n)", "O(log n)", "O(n²)", "O(1)"], ans: 3, fb: "Hash tables provide O(1) average time complexity for lookup using hash functions." },
+      { q: "Which data structure is best for implementing a priority queue?", opts: ["Array", "Stack", "Heap", "Linked List"], ans: 2, fb: "A Heap (min-heap or max-heap) efficiently supports priority queue operations in O(log n)." }
+    ],
+    terms: [
+      { name: "Stack", def: "LIFO structure — last in, first out" },
+      { name: "Queue", def: "FIFO structure — first in, first out" },
+      { name: "Hash Table", def: "Key-value store with O(1) average access" }
+    ],
+    resources: [
+      { icon: "📖", label: "Visualgo — Algorithm Visualizer", url: "https://visualgo.net/en", tag: "VISUAL" },
+      { icon: "📖", label: "Big-O Cheat Sheet", url: "https://www.bigocheatsheet.com", tag: "REFERENCE" }
+    ]
+  },
+  // 6
+  {
+    id: 6, level: 'intermediate', icon: '🔍',
+    title: 'Algorithms & Sorting',
+    time: '35 min', xp: 65,
+    keywords: ['sorting', 'bubble sort', 'merge sort', 'binary search', 'algorithm', 'linear search'],
+    theory: `
+      <h2>What Is an Algorithm?</h2>
+      <p>An algorithm is a <strong>finite set of well-defined instructions</strong> for solving a problem. A good algorithm is correct, efficient, and simple.</p>
+      <h2>Searching Algorithms</h2>
+      <ul>
+        <li><strong>Linear Search</strong>: Check each element one by one. O(n). Works on unsorted data.</li>
+        <li><strong>Binary Search</strong>: Requires sorted array. Halve the search space each step. O(log n).</li>
+      </ul>
+      <div class="info-box"><div class="info-title">📐 Binary Search Power</div>With 1,000,000 items: Linear search checks up to 1,000,000 items. Binary search checks at most ~20 items. This is the power of O(log n).</div>
+      <h2>Sorting Algorithms</h2>
+      <ul>
+        <li><strong>Bubble Sort</strong>: Compare adjacent pairs, swap if wrong order. O(n²). Simple but slow.</li>
+        <li><strong>Selection Sort</strong>: Find minimum, place at start, repeat. O(n²). In-place.</li>
+        <li><strong>Insertion Sort</strong>: Build sorted array one item at a time. O(n²). Fast for nearly sorted.</li>
+        <li><strong>Merge Sort</strong>: Divide and conquer. Split → sort halves → merge. O(n log n). Stable.</li>
+        <li><strong>Quick Sort</strong>: Partition around pivot, recurse. O(n log n) average. O(n²) worst.</li>
+        <li><strong>Tim Sort</strong>: Python's built-in. Hybrid of merge + insertion. O(n log n).</li>
+      </ul>
+      <div class="warn-box"><div class="warn-title">💡 In Practice</div>For real code, always use your language's built-in sort (Python's sorted(), Java's Arrays.sort()). They're optimized and battle-tested. Implement sorts only when learning or constrained.</div>
+    `,
+    code: `<span class="cmt"># Algorithms — Search & Sort</span>
+
+<span class="cmt"># Linear Search — O(n)</span>
+<span class="kw">def</span> <span class="fn">linear_search</span>(arr, target):
+    <span class="kw">for</span> i, val <span class="kw">in</span> <span class="fn">enumerate</span>(arr):
+        <span class="kw">if</span> val == target:
+            <span class="kw">return</span> i
+    <span class="kw">return</span> -<span class="num">1</span>
+
+<span class="cmt"># Binary Search — O(log n)</span>
+<span class="kw">def</span> <span class="fn">binary_search</span>(arr, target):
+    lo, hi = <span class="num">0</span>, <span class="fn">len</span>(arr) - <span class="num">1</span>
+    <span class="kw">while</span> lo <= hi:
+        mid = (lo + hi) // <span class="num">2</span>
+        <span class="kw">if</span>   arr[mid] == target: <span class="kw">return</span> mid
+        <span class="kw">elif</span> arr[mid] < target:  lo = mid + <span class="num">1</span>
+        <span class="kw">else</span>:                    hi = mid - <span class="num">1</span>
+    <span class="kw">return</span> -<span class="num">1</span>
+
+<span class="cmt"># Bubble Sort — O(n²)</span>
+<span class="kw">def</span> <span class="fn">bubble_sort</span>(arr):
+    n = <span class="fn">len</span>(arr)
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(n):
+        <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, n-i-<span class="num">1</span>):
+            <span class="kw">if</span> arr[j] > arr[j+<span class="num">1</span>]:
+                arr[j], arr[j+<span class="num">1</span>] = arr[j+<span class="num">1</span>], arr[j]
+    <span class="kw">return</span> arr
+
+data = [<span class="num">64</span>, <span class="num">34</span>, <span class="num">25</span>, <span class="num">12</span>, <span class="num">22</span>]
+<span class="kw">print</span>(<span class="fn">bubble_sort</span>(data)) <span class="cmt"># [12,22,25,34,64]</span>`,
+    quiz: [
+      { q: "What is the time complexity of Binary Search?", opts: ["O(n)", "O(n²)", "O(log n)", "O(1)"], ans: 2, fb: "Binary Search is O(log n) — it halves the search space each iteration." },
+      { q: "What does Bubble Sort require multiple passes to do?", opts: ["Insert new elements", "Delete duplicates", "'Bubble' larger values toward the end", "Find the minimum"], ans: 2, fb: "Bubble Sort compares adjacent pairs and 'bubbles' larger values toward the end of the array." },
+      { q: "What is the best sorting algorithm for general use?", opts: ["Bubble Sort", "Merge Sort or Quick Sort", "Selection Sort", "Insertion Sort"], ans: 1, fb: "Merge Sort (O(n log n), stable) and Quick Sort (O(n log n) average) are the most efficient general-purpose sorts." }
+    ],
+    terms: [
+      { name: "Binary Search", def: "O(log n) search by halving sorted array each step" },
+      { name: "Merge Sort", def: "Divide-and-conquer O(n log n) stable sort" },
+      { name: "Pivot", def: "Element used to partition array in Quick Sort" }
+    ],
+    resources: [
+      { icon: "🎬", label: "Sorting Algorithms Visualized", url: "https://visualgo.net/en/sorting", tag: "VISUAL" }
+    ]
+  },
+  // 7
+  {
+    id: 7, level: 'intermediate', icon: '🏗️',
+    title: 'Object-Oriented Programming',
+    time: '30 min', xp: 60,
+    keywords: ['OOP', 'class', 'object', 'inheritance', 'encapsulation', 'polymorphism', 'abstraction'],
+    theory: `
+      <h2>What is OOP?</h2>
+      <p>Object-Oriented Programming organizes code around <strong>objects</strong> — data structures that bundle related data (attributes) and behavior (methods) together. It mirrors how we think about the real world.</p>
+      <h2>The Four Pillars of OOP</h2>
+      <ul>
+        <li><strong>Encapsulation</strong>: Bundling data + methods; hiding internal state. Access via public interface.</li>
+        <li><strong>Inheritance</strong>: A class can inherit attributes and methods from a parent class, extending or overriding them.</li>
+        <li><strong>Polymorphism</strong>: Same method name, different behavior depending on the object's type.</li>
+        <li><strong>Abstraction</strong>: Hiding complex implementation, exposing only what's necessary.</li>
+      </ul>
+      <h3>Classes and Objects</h3>
+      <p>A <strong>class</strong> is a blueprint. An <strong>object</strong> is an instance of a class. Think: class = "Car" blueprint; object = your specific Toyota.</p>
+      <div class="info-box"><div class="info-title">🔑 __init__ Method</div>The <code>__init__</code> method (constructor) is called automatically when you create an object. It initializes the object's attributes.</div>
+      <h3>Special Methods (Dunder Methods)</h3>
+      <ul>
+        <li><code>__str__</code>: String representation of the object</li>
+        <li><code>__len__</code>: Called by len()</li>
+        <li><code>__eq__</code>: Called by ==</li>
+        <li><code>__repr__</code>: Developer-friendly string</li>
+      </ul>
+    `,
+    code: `<span class="cmt"># OOP in Python</span>
+
+<span class="kw">class</span> <span class="cls">Animal</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, name, sound):
+        <span class="var">self</span>.name = name      <span class="cmt"># attribute</span>
+        <span class="var">self</span>.sound = sound
+    
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="var">self</span>):          <span class="cmt"># method</span>
+        <span class="kw">return</span> <span class="fn">f</span><span class="str">"{self.name} says {self.sound}!"</span>
+    
+    <span class="kw">def</span> <span class="fn">__str__</span>(<span class="var">self</span>):        <span class="cmt"># dunder method</span>
+        <span class="kw">return</span> <span class="fn">f</span><span class="str">"Animal({self.name})"</span>
+
+<span class="kw">class</span> <span class="cls">Dog</span>(<span class="cls">Animal</span>):          <span class="cmt"># Inheritance</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, name, breed):
+        <span class="fn">super</span>().<span class="fn">__init__</span>(name, <span class="str">"Woof"</span>)
+        <span class="var">self</span>.breed = breed
+    
+    <span class="kw">def</span> <span class="fn">fetch</span>(<span class="var">self</span>):           <span class="cmt"># New method</span>
+        <span class="kw">return</span> <span class="fn">f</span><span class="str">"{self.name} fetches the ball!"</span>
+
+<span class="cmt"># Polymorphism</span>
+animals = [
+    <span class="cls">Animal</span>(<span class="str">"Cat"</span>, <span class="str">"Meow"</span>),
+    <span class="cls">Dog</span>(<span class="str">"Rex"</span>, <span class="str">"German Shepherd"</span>)
+]
+<span class="kw">for</span> a <span class="kw">in</span> animals:
+    <span class="kw">print</span>(a.<span class="fn">speak</span>())  <span class="cmt"># same method, different behavior</span>`,
+    quiz: [
+      { q: "What is inheritance in OOP?", opts: ["Copying code manually", "A child class using parent class features", "Encapsulating data", "Running faster code"], ans: 1, fb: "Inheritance allows a child class to reuse and extend the attributes and methods of a parent class." },
+      { q: "What is encapsulation?", opts: ["Multiple classes inheriting one parent", "Same method doing different things", "Bundling data and methods, hiding internal state", "Abstract classes only"], ans: 2, fb: "Encapsulation bundles data and methods together and hides internal implementation from outside." },
+      { q: "What does __init__ do in Python?", opts: ["Deletes the object", "Copies the object", "Initializes object attributes when created", "Inherits from parent"], ans: 2, fb: "__init__ is the constructor — automatically called when a new object is created to set up its initial state." }
+    ],
+    terms: [
+      { name: "Class", def: "A blueprint for creating objects" },
+      { name: "Inheritance", def: "Child class reuses and extends parent class" },
+      { name: "Polymorphism", def: "Same method name, different behavior per class" }
+    ],
+    resources: [
+      { icon: "📖", label: "Real Python OOP Guide", url: "https://realpython.com/python3-object-oriented-programming/", tag: "GUIDE" }
+    ]
+  },
+  // 8
+  {
+    id: 8, level: 'intermediate', icon: '🕸️',
+    title: 'Web Basics — HTML, CSS & JavaScript',
+    time: '40 min', xp: 65,
+    keywords: ['HTML', 'CSS', 'JavaScript', 'web', 'DOM', 'frontend', 'browser'],
+    theory: `
+      <h2>How the Web Works</h2>
+      <p>When you type a URL in a browser, it sends an <strong>HTTP request</strong> to a server, which returns <strong>HTML, CSS, and JavaScript</strong> files. The browser renders them into the page you see.</p>
+      <h2>HTML — Structure</h2>
+      <p>HTML (HyperText Markup Language) defines the <strong>structure and content</strong> of a webpage using tags:</p>
+      <ul>
+        <li><code>&lt;h1&gt;–&lt;h6&gt;</code> — Headings</li>
+        <li><code>&lt;p&gt;</code> — Paragraph</li>
+        <li><code>&lt;a href="..."&gt;</code> — Links</li>
+        <li><code>&lt;div&gt;</code>, <code>&lt;span&gt;</code> — Container elements</li>
+        <li><code>&lt;img&gt;</code>, <code>&lt;video&gt;</code> — Media</li>
+        <li><code>&lt;form&gt;</code>, <code>&lt;input&gt;</code> — User input</li>
+      </ul>
+      <h2>CSS — Style</h2>
+      <p>CSS (Cascading Style Sheets) controls the <strong>visual appearance</strong>. The cascade means later rules override earlier ones. Key concepts: box model, flexbox, grid, selectors.</p>
+      <h2>JavaScript — Behavior</h2>
+      <p>JavaScript adds <strong>interactivity</strong>. It can manipulate the DOM (Document Object Model) — the live tree of HTML elements:</p>
+      <ul>
+        <li><code>document.getElementById()</code> — select elements</li>
+        <li><code>element.style.color = "red"</code> — change styles</li>
+        <li><code>element.addEventListener("click", fn)</code> — listen for events</li>
+        <li><code>fetch(url)</code> — make HTTP requests</li>
+      </ul>
+      <div class="info-box"><div class="info-title">🌐 The Three Layers</div>HTML = skeleton, CSS = skin/clothing, JavaScript = muscles/brain. Every website uses all three.</div>
+    `,
+    code: `<span class="cmt">&lt;!-- HTML Structure --&gt;</span>
+&lt;<span class="kw">html</span>&gt;
+  &lt;<span class="kw">head</span>&gt;
+    &lt;<span class="kw">title</span>&gt;My Page&lt;/<span class="kw">title</span>&gt;
+  &lt;/<span class="kw">head</span>&gt;
+  &lt;<span class="kw">body</span>&gt;
+    &lt;<span class="kw">h1</span> <span class="fn">id</span>=<span class="str">"title"</span>&gt;Hello World&lt;/<span class="kw">h1</span>&gt;
+    &lt;<span class="kw">button</span> <span class="fn">onclick</span>=<span class="str">"changeColor()"</span>&gt;Click Me!&lt;/<span class="kw">button</span>&gt;
+  &lt;/<span class="kw">body</span>&gt;
+&lt;/<span class="kw">html</span>&gt;
+
+<span class="cmt">/* CSS Styling */</span>
+<span class="cls">h1</span> {
+  color: <span class="str">#00f5a0</span>;
+  font-size: <span class="str">2rem</span>;
+  text-align: <span class="str">center</span>;
+}
+
+<span class="cmt">// JavaScript Behavior</span>
+<span class="kw">function</span> <span class="fn">changeColor</span>() {
+  <span class="kw">const</span> title = document.<span class="fn">getElementById</span>(<span class="str">"title"</span>);
+  title.style.color = <span class="str">"#f59e0b"</span>;
+  title.textContent = <span class="str">"You clicked me!"</span>;
+}
+
+<span class="cmt">// Modern JS — fetch data from API</span>
+<span class="kw">async function</span> <span class="fn">getData</span>() {
+  <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">"https://api.example.com/data"</span>);
+  <span class="kw">const</span> data = <span class="kw">await</span> res.<span class="fn">json</span>();
+  <span class="kw">return</span> data;
+}`,
+    quiz: [
+      { q: "What does HTML stand for?", opts: ["High Transfer Markup Language", "HyperText Markup Language", "HyperText Machine Language", "Hyperlink Text Markup Language"], ans: 1, fb: "HTML = HyperText Markup Language. 'HyperText' refers to links that connect web pages." },
+      { q: "What is the DOM?", opts: ["Document Object Model — the live tree of HTML elements", "Data Object Manager", "Display Object Model", "Document Order Manager"], ans: 0, fb: "The DOM is the Document Object Model — a tree representation of the HTML that JavaScript can manipulate." },
+      { q: "Which is responsible for styling in web development?", opts: ["HTML", "JavaScript", "SQL", "CSS"], ans: 3, fb: "CSS (Cascading Style Sheets) controls all visual presentation: colors, fonts, layout, spacing." }
+    ],
+    terms: [
+      { name: "DOM", def: "Document Object Model — HTML as a live JavaScript object" },
+      { name: "HTTP", def: "Protocol for transferring data on the web" },
+      { name: "Fetch API", def: "Modern JS API for making network requests" }
+    ],
+    resources: [
+      { icon: "📖", label: "MDN Web Docs", url: "https://developer.mozilla.org", tag: "OFFICIAL" },
+      { icon: "🎓", label: "freeCodeCamp Web Dev", url: "https://www.freecodecamp.org", tag: "FREE" }
+    ]
+  },
+  // 9
+  {
+    id: 9, level: 'intermediate', icon: '🗄️',
+    title: 'Databases & SQL',
+    time: '35 min', xp: 60,
+    keywords: ['SQL', 'database', 'SELECT', 'INSERT', 'JOIN', 'table', 'query', 'relational'],
+    theory: `
+      <h2>What Is a Database?</h2>
+      <p>A database is an organized collection of structured data, managed by a <strong>Database Management System (DBMS)</strong>. Databases power nearly every app — from Instagram to banking.</p>
+      <h3>Types of Databases</h3>
+      <ul>
+        <li><strong>Relational (SQL)</strong>: Data in tables with rows & columns. PostgreSQL, MySQL, SQLite.</li>
+        <li><strong>Document (NoSQL)</strong>: JSON-like documents. MongoDB.</li>
+        <li><strong>Key-Value</strong>: Simple key→value pairs. Redis, DynamoDB.</li>
+        <li><strong>Graph DB</strong>: Nodes and edges. Neo4j — for social networks.</li>
+      </ul>
+      <h2>SQL — The Language of Databases</h2>
+      <p>SQL (Structured Query Language) is the standard language for relational databases. Core commands:</p>
+      <ul>
+        <li><code>SELECT</code> — retrieve data</li>
+        <li><code>INSERT INTO</code> — add new rows</li>
+        <li><code>UPDATE</code> — modify rows</li>
+        <li><code>DELETE</code> — remove rows</li>
+        <li><code>CREATE TABLE</code> — create new table</li>
+        <li><code>JOIN</code> — combine rows from multiple tables</li>
+      </ul>
+      <h2>Relational Concepts</h2>
+      <ul>
+        <li><strong>Primary Key</strong>: Unique identifier for each row (e.g., user_id)</li>
+        <li><strong>Foreign Key</strong>: References primary key in another table — creates relationships</li>
+        <li><strong>Index</strong>: Data structure that speeds up queries (trade-off: slower writes)</li>
+        <li><strong>ACID</strong>: Atomicity, Consistency, Isolation, Durability — guarantees for transactions</li>
+      </ul>
+      <div class="info-box"><div class="info-title">🔑 Learn SQL Free</div>Search Google: <strong>"SQLZoo tutorial"</strong> or <strong>"Mode SQL tutorial"</strong> — both are excellent free, interactive SQL courses.</div>
+    `,
+    code: `<span class="cmt">-- SQL Examples</span>
+
+<span class="cmt">-- Create table</span>
+<span class="kw">CREATE TABLE</span> users (
+    id       <span class="cls">INTEGER</span> <span class="kw">PRIMARY KEY</span>,
+    name     <span class="cls">TEXT</span>    <span class="kw">NOT NULL</span>,
+    email    <span class="cls">TEXT</span>    <span class="kw">UNIQUE</span>,
+    age      <span class="cls">INTEGER</span>
+);
+
+<span class="cmt">-- Insert data</span>
+<span class="kw">INSERT INTO</span> users (name, email, age)
+<span class="kw">VALUES</span> (<span class="str">'Alice'</span>, <span class="str">'alice@example.com'</span>, <span class="num">25</span>);
+
+<span class="cmt">-- Select with filter</span>
+<span class="kw">SELECT</span> name, email
+<span class="kw">FROM</span>   users
+<span class="kw">WHERE</span>  age > <span class="num">18</span>
+<span class="kw">ORDER BY</span> name <span class="kw">ASC</span>;
+
+<span class="cmt">-- JOIN two tables</span>
+<span class="kw">SELECT</span> u.name, o.product, o.price
+<span class="kw">FROM</span>   users u
+<span class="kw">JOIN</span>   orders o <span class="kw">ON</span> u.id = o.user_id
+<span class="kw">WHERE</span>  o.price > <span class="num">100</span>;
+
+<span class="cmt">-- Aggregate functions</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> total, <span class="fn">AVG</span>(age) <span class="kw">AS</span> avg_age
+<span class="kw">FROM</span>   users;`,
+    quiz: [
+      { q: "What does SELECT * FROM users do?", opts: ["Deletes all users", "Creates a users table", "Returns all rows and columns from the users table", "Updates all users"], ans: 2, fb: "SELECT * returns all columns, FROM users specifies the table. Result: every row in the users table." },
+      { q: "What is a PRIMARY KEY?", opts: ["A very important password", "A unique identifier for each row in a table", "The first column", "An index on every column"], ans: 1, fb: "A Primary Key uniquely identifies each row in a table. It must be unique and cannot be NULL." },
+      { q: "What does JOIN do in SQL?", opts: ["Deletes related records", "Combines rows from two or more tables based on a condition", "Splits a table into two", "Creates an index"], ans: 1, fb: "JOIN combines rows from multiple tables based on a related column (usually foreign key = primary key)." }
+    ],
+    terms: [
+      { name: "SQL", def: "Structured Query Language — standard language for databases" },
+      { name: "Primary Key", def: "Unique identifier for each row in a table" },
+      { name: "JOIN", def: "Combines rows from multiple tables by a matching condition" }
+    ],
+    resources: [
+      { icon: "📖", label: "SQLZoo Interactive Tutorials", url: "https://sqlzoo.net", tag: "INTERACTIVE" },
+      { icon: "📖", label: "PostgreSQL Docs", url: "https://www.postgresql.org/docs/", tag: "OFFICIAL" }
+    ]
+  },
+  // 10
+  {
+    id: 10, level: 'advanced', icon: '🔁',
+    title: 'Recursion & Backtracking',
+    time: '40 min', xp: 75,
+    keywords: ['recursion', 'backtracking', 'base case', 'call stack', 'memoization', 'dynamic programming'],
+    theory: `
+      <h2>What Is Recursion?</h2>
+      <p>A function is recursive if it <strong>calls itself</strong> to solve a smaller version of the same problem. It's a powerful technique for problems with self-similar structure.</p>
+      <h3>Two Critical Parts</h3>
+      <ul>
+        <li><strong>Base Case</strong>: The stopping condition — when the function does NOT call itself</li>
+        <li><strong>Recursive Case</strong>: The step that calls the function with a smaller input</li>
+      </ul>
+      <div class="warn-box"><div class="warn-title">⚠️ Stack Overflow</div>Every recursive call is added to the <strong>call stack</strong>. Without a proper base case (or too many calls), you get a stack overflow error.</div>
+      <h2>Classic Recursive Problems</h2>
+      <ul>
+        <li><strong>Fibonacci</strong>: fib(n) = fib(n-1) + fib(n-2)</li>
+        <li><strong>Factorial</strong>: n! = n × (n-1)!</li>
+        <li><strong>Tree traversal</strong>: Visit all nodes</li>
+        <li><strong>Merge Sort</strong>: Split → sort recursively → merge</li>
+      </ul>
+      <h2>Backtracking</h2>
+      <p>Backtracking explores all possibilities by building a solution incrementally and <strong>abandoning</strong> paths that fail (pruning). Used in constraint satisfaction problems.</p>
+      <ul>
+        <li>N-Queens problem</li>
+        <li>Sudoku solver</li>
+        <li>Maze navigation</li>
+        <li>Subset generation</li>
+      </ul>
+      <h2>Memoization (Optimization)</h2>
+      <p>Cache recursive results to avoid recomputing. Transforms exponential O(2ⁿ) naive recursion into O(n) dynamic programming.</p>
+    `,
+    code: `<span class="cmt"># Recursion Examples</span>
+
+<span class="cmt"># Factorial — n! = n × (n-1)!</span>
+<span class="kw">def</span> <span class="fn">factorial</span>(n):
+    <span class="kw">if</span> n <= <span class="num">1</span>: <span class="kw">return</span> <span class="num">1</span>    <span class="cmt"># base case</span>
+    <span class="kw">return</span> n * <span class="fn">factorial</span>(n - <span class="num">1</span>)  <span class="cmt"># recursive case</span>
+
+<span class="kw">print</span>(<span class="fn">factorial</span>(<span class="num">6</span>))  <span class="cmt"># 720</span>
+
+<span class="cmt"># Fibonacci — with memoization</span>
+memo = {}
+<span class="kw">def</span> <span class="fn">fib</span>(n):
+    <span class="kw">if</span> n <span class="kw">in</span> memo: <span class="kw">return</span> memo[n]
+    <span class="kw">if</span> n <= <span class="num">1</span>: <span class="kw">return</span> n
+    memo[n] = <span class="fn">fib</span>(n-<span class="num">1</span>) + <span class="fn">fib</span>(n-<span class="num">2</span>)
+    <span class="kw">return</span> memo[n]
+
+<span class="kw">print</span>([<span class="fn">fib</span>(i) <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>)])  <span class="cmt"># [0,1,1,2,3,5,8,13,21,34]</span>
+
+<span class="cmt"># Backtracking — generate all subsets</span>
+<span class="kw">def</span> <span class="fn">subsets</span>(nums, path=[], idx=<span class="num">0</span>):
+    <span class="kw">print</span>(path)                     <span class="cmt"># current subset</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(idx, <span class="fn">len</span>(nums)):
+        <span class="fn">subsets</span>(nums, path+[nums[i]], i+<span class="num">1</span>)
+
+<span class="fn">subsets</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>])`,
+    quiz: [
+      { q: "What is the 'base case' in recursion?", opts: ["The first call", "The stopping condition that prevents infinite recursion", "The slowest path", "The deepest call"], ans: 1, fb: "The base case is the condition where the function does NOT call itself, stopping the recursion." },
+      { q: "What problem does memoization solve in recursion?", opts: ["Stack overflow", "Infinite loops", "Recomputing the same subproblems multiple times", "Incorrect answers"], ans: 2, fb: "Memoization caches results of subproblems to avoid recomputing them, turning O(2ⁿ) into O(n)." },
+      { q: "What is backtracking?", opts: ["Going back to fix bugs", "Exploring solutions by trying options and undoing bad choices", "A type of loop", "Reverse sorting"], ans: 1, fb: "Backtracking builds solutions incrementally and backtracks (undoes) when a partial solution can't succeed." }
+    ],
+    terms: [
+      { name: "Base Case", def: "The stopping condition in recursion" },
+      { name: "Call Stack", def: "Memory structure tracking active function calls" },
+      { name: "Memoization", def: "Caching recursive results to avoid recomputation" }
+    ],
+    resources: [
+      { icon: "📖", label: "Recursion on GeeksForGeeks", url: "https://www.geeksforgeeks.org/recursion/", tag: "GUIDE" }
+    ]
+  },
+  // 11
+  {
+    id: 11, level: 'advanced', icon: '📊',
+    title: 'Big-O Complexity Analysis',
+    time: '35 min', xp: 70,
+    keywords: ['Big-O', 'time complexity', 'space complexity', 'O(n)', 'O(log n)', 'O(n²)', 'performance'],
+    theory: `
+      <h2>Why Complexity Matters</h2>
+      <p>An algorithm that works on 100 items may be unusably slow on 1,000,000. <strong>Big-O notation</strong> describes how an algorithm's runtime or memory grows relative to input size.</p>
+      <h2>Common Complexities (Best → Worst)</h2>
+      <ul>
+        <li><strong>O(1)</strong> — Constant: Always same time. e.g. array access, hash lookup</li>
+        <li><strong>O(log n)</strong> — Logarithmic: Doubles input → one more step. e.g. binary search</li>
+        <li><strong>O(n)</strong> — Linear: Double input → double time. e.g. linear search, sum array</li>
+        <li><strong>O(n log n)</strong> — Linearithmic: Efficient sorts. e.g. merge sort, heap sort</li>
+        <li><strong>O(n²)</strong> — Quadratic: Double input → 4× time. e.g. bubble sort, nested loops</li>
+        <li><strong>O(2ⁿ)</strong> — Exponential: Each item doubles work. e.g. naive recursion, subsets</li>
+        <li><strong>O(n!)</strong> — Factorial: All permutations. e.g. brute-force TSP</li>
+      </ul>
+      <div class="info-box"><div class="info-title">📐 Big-O Rules</div>1. Drop constants: O(3n) = O(n). 2. Drop lower-order terms: O(n² + n) = O(n²). 3. Consider worst case by default.</div>
+      <h2>Space Complexity</h2>
+      <p>Same notation, but measures <strong>memory usage</strong>. An algorithm that creates an array of n elements has O(n) space complexity. Recursive functions use O(depth) stack space.</p>
+      <h2>Analyzing Code</h2>
+      <ul>
+        <li>Single loop over n items → O(n)</li>
+        <li>Loop inside a loop (both over n) → O(n²)</li>
+        <li>Halving the input each step → O(log n)</li>
+        <li>Two separate loops → O(n + n) = O(n)</li>
+      </ul>
+    `,
+    code: `<span class="cmt"># Big-O Analysis Examples</span>
+
+<span class="cmt"># O(1) — Constant</span>
+<span class="kw">def</span> <span class="fn">get_first</span>(arr):
+    <span class="kw">return</span> arr[<span class="num">0</span>]  <span class="cmt"># Always 1 operation</span>
+
+<span class="cmt"># O(n) — Linear</span>
+<span class="kw">def</span> <span class="fn">sum_all</span>(arr):
+    total = <span class="num">0</span>
+    <span class="kw">for</span> x <span class="kw">in</span> arr:   <span class="cmt"># n iterations</span>
+        total += x
+    <span class="kw">return</span> total
+
+<span class="cmt"># O(n²) — Quadratic (nested loops)</span>
+<span class="kw">def</span> <span class="fn">has_duplicate</span>(arr):
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(arr)):
+        <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(i+<span class="num">1</span>, <span class="fn">len</span>(arr)):
+            <span class="kw">if</span> arr[i] == arr[j]:
+                <span class="kw">return</span> <span class="kw">True</span>
+    <span class="kw">return</span> <span class="kw">False</span>
+
+<span class="cmt"># O(n) — Better duplicate check using set</span>
+<span class="kw">def</span> <span class="fn">has_duplicate_fast</span>(arr):
+    seen = <span class="fn">set</span>()
+    <span class="kw">for</span> x <span class="kw">in</span> arr:     <span class="cmt"># set lookup is O(1)</span>
+        <span class="kw">if</span> x <span class="kw">in</span> seen: <span class="kw">return</span> <span class="kw">True</span>
+        seen.<span class="fn">add</span>(x)
+    <span class="kw">return</span> <span class="kw">False</span>`,
+    quiz: [
+      { q: "What is the Big-O of accessing an element in an array by index?", opts: ["O(n)", "O(log n)", "O(1)", "O(n²)"], ans: 2, fb: "Array access by index is O(1) — it directly computes the memory address regardless of array size." },
+      { q: "Two nested loops each iterating n times gives what complexity?", opts: ["O(n)", "O(2n)", "O(n log n)", "O(n²)"], ans: 3, fb: "Two nested loops over n = n × n = O(n²). This is why nested loops are often a red flag for performance." },
+      { q: "What does 'drop constants' mean in Big-O?", opts: ["Ignore all variables", "O(5n) simplifies to O(n)", "Always use the best case", "Count only space"], ans: 1, fb: "In Big-O, constants don't matter at scale. O(5n) = O(n) because we care about growth rate, not the multiplier." }
+    ],
+    terms: [
+      { name: "Big-O", def: "Notation describing algorithm runtime/space growth rate" },
+      { name: "O(log n)", def: "Logarithmic — input doubles but steps only increase by 1" },
+      { name: "Space Complexity", def: "How memory usage grows relative to input size" }
+    ],
+    resources: [
+      { icon: "📖", label: "Big-O Cheat Sheet", url: "https://www.bigocheatsheet.com", tag: "REFERENCE" }
+    ]
+  },
+  // 12
+  {
+    id: 12, level: 'advanced', icon: '🌐',
+    title: 'Networking & HTTP',
+    time: '30 min', xp: 65,
+    keywords: ['HTTP', 'TCP/IP', 'DNS', 'REST', 'API', 'networking', 'request', 'response', 'protocol'],
+    theory: `
+      <h2>How the Internet Works</h2>
+      <p>The internet is a global network of computers communicating via standardized protocols. Data travels in <strong>packets</strong> across physical infrastructure (fiber optic, copper, WiFi, satellite).</p>
+      <h2>The TCP/IP Model (4 Layers)</h2>
+      <ul>
+        <li><strong>Application Layer</strong>: HTTP, HTTPS, DNS, FTP, SSH — what user-facing apps use</li>
+        <li><strong>Transport Layer</strong>: TCP (reliable), UDP (fast but unreliable) — handles ports, flow control</li>
+        <li><strong>Internet Layer</strong>: IP — routes packets across networks using IP addresses</li>
+        <li><strong>Network Access Layer</strong>: Ethernet, WiFi — physical transmission</li>
+      </ul>
+      <h2>HTTP — The Web's Protocol</h2>
+      <ul>
+        <li><strong>GET</strong>: Retrieve data — no side effects</li>
+        <li><strong>POST</strong>: Send/create data</li>
+        <li><strong>PUT/PATCH</strong>: Update data</li>
+        <li><strong>DELETE</strong>: Remove data</li>
+      </ul>
+      <p>HTTP responses have <strong>status codes</strong>: 200 (OK), 201 (Created), 400 (Bad Request), 401 (Unauthorized), 404 (Not Found), 500 (Server Error).</p>
+      <h2>DNS</h2>
+      <p>DNS (Domain Name System) translates human-readable names (google.com) into IP addresses (142.250.80.46). It's the "phone book" of the internet.</p>
+      <div class="info-box"><div class="info-title">🔗 REST APIs</div>REST (Representational State Transfer) is an architectural style for APIs. A RESTful API uses HTTP methods, stateless requests, and returns JSON data. Powers almost all modern web and mobile apps.</div>
+    `,
+    code: `<span class="cmt"># HTTP Request with Python</span>
+<span class="kw">import</span> urllib.request
+<span class="kw">import</span> json
+
+<span class="cmt"># GET request to a public API</span>
+url = <span class="str">"https://jsonplaceholder.typicode.com/posts/1"</span>
+<span class="kw">with</span> urllib.request.<span class="fn">urlopen</span>(url) <span class="kw">as</span> response:
+    data = json.<span class="fn">loads</span>(response.<span class="fn">read</span>())
+    <span class="kw">print</span>(data[<span class="str">"title"</span>])
+
+<span class="cmt"># HTTP Status codes you must know</span>
+status_codes = {
+    <span class="num">200</span>: <span class="str">"OK - Success"</span>,
+    <span class="num">201</span>: <span class="str">"Created - Resource made"</span>,
+    <span class="num">301</span>: <span class="str">"Moved Permanently"</span>,
+    <span class="num">400</span>: <span class="str">"Bad Request - Your fault"</span>,
+    <span class="num">401</span>: <span class="str">"Unauthorized - Login required"</span>,
+    <span class="num">403</span>: <span class="str">"Forbidden - No permission"</span>,
+    <span class="num">404</span>: <span class="str">"Not Found"</span>,
+    <span class="num">500</span>: <span class="str">"Internal Server Error - Their fault"</span>
+}
+
+<span class="kw">for</span> code, msg <span class="kw">in</span> status_codes.items():
+    <span class="kw">print</span>(<span class="fn">f</span><span class="str">"HTTP {code}: {msg}"</span>)`,
+    quiz: [
+      { q: "What does DNS do?", opts: ["Encrypts web traffic", "Translates domain names to IP addresses", "Routes TCP packets", "Manages HTTP sessions"], ans: 1, fb: "DNS (Domain Name System) is like the internet's phonebook — it converts 'google.com' to an IP like '142.250.80.46'." },
+      { q: "What HTTP status code means 'Not Found'?", opts: ["200", "500", "403", "404"], ans: 3, fb: "404 = Not Found. The server couldn't find the requested resource. Very common in web development!" },
+      { q: "What is the difference between TCP and UDP?", opts: ["TCP is faster, UDP is reliable", "TCP is reliable (guaranteed delivery), UDP is faster but unreliable", "They do the same thing", "TCP is for video, UDP for text"], ans: 1, fb: "TCP guarantees delivery and order (used by HTTP, email). UDP is faster with no guarantee (used by video calls, gaming)." }
+    ],
+    terms: [
+      { name: "HTTP", def: "HyperText Transfer Protocol — how browsers communicate with servers" },
+      { name: "DNS", def: "Domain Name System — maps domain names to IP addresses" },
+      { name: "REST", def: "Architectural style for web APIs using HTTP methods" }
+    ],
+    resources: [
+      { icon: "📖", label: "How DNS Works", url: "https://howdns.works", tag: "VISUAL" },
+      { icon: "📖", label: "MDN HTTP Overview", url: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview", tag: "OFFICIAL" }
+    ]
+  },
+  // 13
+  {
+    id: 13, level: 'advanced', icon: '🔐',
+    title: 'Cryptography & Security',
+    time: '35 min', xp: 70,
+    keywords: ['cryptography', 'encryption', 'hashing', 'SSL', 'TLS', 'security', 'HTTPS', 'XSS', 'SQL injection'],
+    theory: `
+      <h2>Why Security Matters</h2>
+      <p>Security protects data from unauthorized access, modification, or theft. Every system you build must consider security from the start (security by design).</p>
+      <h2>Cryptography Basics</h2>
+      <ul>
+        <li><strong>Symmetric Encryption</strong>: Same key to encrypt and decrypt. Fast. e.g. AES-256. Problem: key sharing.</li>
+        <li><strong>Asymmetric Encryption</strong>: Public key to encrypt, private key to decrypt. e.g. RSA, ECC. Powers HTTPS.</li>
+        <li><strong>Hashing</strong>: One-way transformation. Same input always gives same output. Cannot be reversed. e.g. SHA-256, bcrypt for passwords.</li>
+      </ul>
+      <h2>HTTPS = HTTP + TLS</h2>
+      <p>TLS (Transport Layer Security) creates an encrypted tunnel using asymmetric encryption to share a symmetric key, then uses that fast symmetric key for the session.</p>
+      <h2>Common Attacks & Defenses</h2>
+      <ul>
+        <li><strong>SQL Injection</strong>: Malicious SQL in input. Defense: parameterized queries.</li>
+        <li><strong>XSS (Cross-Site Scripting)</strong>: Injecting JS into pages. Defense: output escaping.</li>
+        <li><strong>CSRF</strong>: Forged requests using user's credentials. Defense: CSRF tokens.</li>
+        <li><strong>Man-in-the-Middle</strong>: Intercepting communication. Defense: TLS/HTTPS.</li>
+        <li><strong>Brute Force</strong>: Trying all passwords. Defense: rate limiting, account lockout.</li>
+      </ul>
+      <div class="warn-box"><div class="warn-title">⚠️ Never Do This</div>Never store passwords in plaintext. Always use slow hashing algorithms like bcrypt, Argon2, or scrypt.</div>
+    `,
+    code: `<span class="cmt"># Cryptography in Python</span>
+<span class="kw">import</span> hashlib
+<span class="kw">import</span> secrets
+<span class="kw">import</span> hmac
+
+<span class="cmt"># SHA-256 Hashing</span>
+msg = <span class="str">"Hello, World!"</span>
+digest = hashlib.<span class="fn">sha256</span>(msg.<span class="fn">encode</span>()).<span class="fn">hexdigest</span>()
+<span class="kw">print</span>(<span class="fn">f</span><span class="str">"SHA-256: {digest[:32]}..."</span>)
+
+<span class="cmt"># Secure random token (for session IDs, CSRF tokens)</span>
+token = secrets.<span class="fn">token_hex</span>(<span class="num">32</span>)
+<span class="kw">print</span>(<span class="fn">f</span><span class="str">"Secure Token: {token[:20]}..."</span>)
+
+<span class="cmt"># HMAC — verify data integrity</span>
+key = <span class="str">b"secret_key"</span>
+data = <span class="str">b"message to protect"</span>
+mac = hmac.<span class="fn">new</span>(key, data, hashlib.sha256).<span class="fn">hexdigest</span>()
+<span class="kw">print</span>(<span class="fn">f</span><span class="str">"HMAC: {mac[:20]}..."</span>)
+
+<span class="cmt"># SQL Injection Prevention</span>
+<span class="cmt"># BAD (vulnerable):</span>
+<span class="cmt"># query = f"SELECT * FROM users WHERE name = '{user_input}'"</span>
+
+<span class="cmt"># GOOD (parameterized):</span>
+<span class="cmt"># cursor.execute("SELECT * FROM users WHERE name = ?", (user_input,))</span>`,
+    quiz: [
+      { q: "What is the difference between hashing and encryption?", opts: ["Hashing is faster", "Hashing is one-way (irreversible), encryption is two-way (reversible)", "They're the same", "Encryption uses longer keys"], ans: 1, fb: "Hashing is one-way (can't reverse). Encryption is two-way (can decrypt with key). Passwords should be hashed, never encrypted." },
+      { q: "What prevents SQL Injection attacks?", opts: ["Using HTTPS", "Parameterized queries / prepared statements", "Hashing user input", "Rate limiting"], ans: 1, fb: "Parameterized queries separate SQL code from user data, making injection impossible — the data is never executed as code." },
+      { q: "What does HTTPS add to HTTP?", opts: ["Faster speed", "Larger file transfers", "Encrypted communication via TLS", "Compression only"], ans: 2, fb: "HTTPS = HTTP + TLS encryption. It encrypts data in transit, preventing eavesdropping and tampering." }
+    ],
+    terms: [
+      { name: "Hashing", def: "One-way transformation that cannot be reversed" },
+      { name: "TLS", def: "Transport Layer Security — encrypts web communications" },
+      { name: "SQL Injection", def: "Attack inserting malicious SQL into an input field" }
+    ],
+    resources: [
+      { icon: "📖", label: "OWASP Top 10 Security Risks", url: "https://owasp.org/www-project-top-ten/", tag: "ESSENTIAL" }
+    ]
+  },
+  // 14
+  {
+    id: 14, level: 'pro', icon: '🤖',
+    title: 'Artificial Intelligence & Machine Learning',
+    time: '45 min', xp: 90,
+    keywords: ['AI', 'machine learning', 'neural network', 'deep learning', 'model', 'training', 'supervised', 'unsupervised'],
+    theory: `
+      <h2>What Is AI?</h2>
+      <p>Artificial Intelligence is the simulation of human intelligence by machines. <strong>Machine Learning</strong> is a subset of AI where systems learn from data rather than being explicitly programmed.</p>
+      <h2>Types of Machine Learning</h2>
+      <ul>
+        <li><strong>Supervised Learning</strong>: Learn from labeled data. Input → label pairs. e.g. spam detection, image classification.</li>
+        <li><strong>Unsupervised Learning</strong>: Find patterns in unlabeled data. e.g. clustering, dimensionality reduction.</li>
+        <li><strong>Reinforcement Learning</strong>: Agent learns by trial and error, maximizing rewards. e.g. game-playing AI, robotics.</li>
+        <li><strong>Self-Supervised / Generative</strong>: Models like GPT, Stable Diffusion predict masked or next tokens.</li>
+      </ul>
+      <h2>Key ML Concepts</h2>
+      <ul>
+        <li><strong>Model</strong>: A mathematical function with learned parameters</li>
+        <li><strong>Training</strong>: Adjusting parameters to minimize error on training data</li>
+        <li><strong>Loss Function</strong>: Measures how wrong the model is</li>
+        <li><strong>Gradient Descent</strong>: Algorithm to minimize loss by adjusting parameters</li>
+        <li><strong>Overfitting</strong>: Model too fitted to training data, poor on new data</li>
+        <li><strong>Validation/Test Set</strong>: Data held out to evaluate model performance</li>
+      </ul>
+      <h2>Neural Networks</h2>
+      <p>Layers of interconnected neurons. Input layer → hidden layers → output layer. Deep Learning uses many layers. Powers: vision, language, speech, recommendation systems.</p>
+      <div class="info-box"><div class="info-title">🚀 Where to Start</div>Search Google: <strong>"fast.ai course"</strong> (practical top-down), <strong>"Andrew Ng ML course"</strong> (theoretical), or <strong>"Google ML Crash Course"</strong>. All free.</div>
+    `,
+    code: `<span class="cmt"># Machine Learning with scikit-learn</span>
+<span class="kw">from</span> sklearn.<span class="fn">datasets</span> <span class="kw">import</span> <span class="fn">load_iris</span>
+<span class="kw">from</span> sklearn.<span class="fn">model_selection</span> <span class="kw">import</span> <span class="fn">train_test_split</span>
+<span class="kw">from</span> sklearn.<span class="fn">tree</span> <span class="kw">import</span> DecisionTreeClassifier
+<span class="kw">from</span> sklearn.<span class="fn">metrics</span> <span class="kw">import</span> <span class="fn">accuracy_score</span>
+
+<span class="cmt"># 1. Load data</span>
+X, y = <span class="fn">load_iris</span>(return_X_y=<span class="kw">True</span>)
+
+<span class="cmt"># 2. Split: 80% train, 20% test</span>
+X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(
+    X, y, test_size=<span class="num">0.2</span>, random_state=<span class="num">42</span>
+)
+
+<span class="cmt"># 3. Train model</span>
+model = DecisionTreeClassifier()
+model.<span class="fn">fit</span>(X_train, y_train)
+
+<span class="cmt"># 4. Evaluate</span>
+predictions = model.<span class="fn">predict</span>(X_test)
+accuracy = <span class="fn">accuracy_score</span>(y_test, predictions)
+<span class="kw">print</span>(<span class="fn">f</span><span class="str">"Accuracy: {accuracy:.2%}"</span>)  <span class="cmt"># ~96%</span>
+
+<span class="cmt"># Gradient Descent (manual)</span>
+<span class="kw">def</span> <span class="fn">gradient_descent</span>(x, y, lr=<span class="num">0.01</span>, epochs=<span class="num">100</span>):
+    w = <span class="num">0.0</span>
+    <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(epochs):
+        grad = -<span class="num">2</span> * <span class="fn">sum</span>((y[i]-w*x[i])*x[i] <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(x)))
+        w -= lr * grad
+    <span class="kw">return</span> w`,
+    quiz: [
+      { q: "What is supervised learning?", opts: ["Learning without labels", "Learning from examples with known correct answers", "Agent learning by rewards", "Clustering data"], ans: 1, fb: "Supervised learning trains models on labeled data (input-output pairs) to learn to map inputs to correct outputs." },
+      { q: "What is overfitting?", opts: ["Model is too simple", "Model trains too fast", "Model performs well on training data but poorly on new data", "Model has too few parameters"], ans: 2, fb: "Overfitting means the model memorized training data too well and can't generalize to unseen examples." },
+      { q: "What does a neural network's 'training' process do?", opts: ["Collects more data", "Adjusts weights to minimize prediction error", "Removes outliers", "Encrypts the model"], ans: 1, fb: "Training adjusts the network's weights (parameters) using gradient descent to minimize the loss function." }
+    ],
+    terms: [
+      { name: "Gradient Descent", def: "Optimization algorithm to minimize loss by adjusting parameters" },
+      { name: "Overfitting", def: "Model memorizes training data, fails to generalize" },
+      { name: "Neural Network", def: "Layered model of connected nodes inspired by the brain" }
+    ],
+    resources: [
+      { icon: "🎓", label: "fast.ai Practical Deep Learning", url: "https://course.fast.ai", tag: "FREE" },
+      { icon: "📖", label: "Google ML Crash Course", url: "https://developers.google.com/machine-learning/crash-course", tag: "FREE" }
+    ]
+  },
+  // 15
+  {
+    id: 15, level: 'pro', icon: '⚙️',
+    title: 'Operating Systems',
+    time: '40 min', xp: 80,
+    keywords: ['OS', 'process', 'thread', 'memory', 'file system', 'kernel', 'scheduling', 'Linux'],
+    theory: `
+      <h2>What Is an OS?</h2>
+      <p>An Operating System is software that manages hardware resources and provides services for programs. The <strong>kernel</strong> is the OS core — it runs in privileged mode and directly controls hardware.</p>
+      <h2>Processes and Threads</h2>
+      <ul>
+        <li><strong>Process</strong>: An executing program instance. Has own memory space, file handles, and state.</li>
+        <li><strong>Thread</strong>: A lightweight unit of execution within a process. Shares memory with other threads in the same process.</li>
+        <li><strong>Context Switch</strong>: OS pauses one process and resumes another. Illusion of parallelism on single-core.</li>
+      </ul>
+      <h2>Memory Management</h2>
+      <ul>
+        <li><strong>Virtual Memory</strong>: Each process sees a private address space. OS maps it to physical RAM + disk (swap).</li>
+        <li><strong>Heap</strong>: Dynamic memory (malloc/new). Managed explicitly or by garbage collector.</li>
+        <li><strong>Stack</strong>: Function call frames, local variables. Automatically managed.</li>
+        <li><strong>Page Fault</strong>: Accessing memory not in RAM — OS loads it from disk.</li>
+      </ul>
+      <h2>Scheduling</h2>
+      <p>CPU scheduler decides which process runs next. Algorithms: Round Robin, Priority, Shortest Job First, CFS (Linux's Completely Fair Scheduler).</p>
+      <h2>File Systems</h2>
+      <p>Organizes data on storage. Common: ext4 (Linux), NTFS (Windows), APFS (macOS). Everything in Unix is a file — including devices and network sockets.</p>
+      <div class="info-box"><div class="info-title">🐧 Learn Linux</div>Search Google: <strong>"Linux command line basics tutorial"</strong> or try <strong>linuxjourney.com</strong>. Linux powers 96% of web servers.</div>
+    `,
+    code: `<span class="cmt"># OS interactions in Python</span>
+<span class="kw">import</span> os
+<span class="kw">import</span> sys
+<span class="kw">import</span> subprocess
+<span class="kw">import</span> threading
+
+<span class="cmt"># Process info</span>
+<span class="kw">print</span>(<span class="fn">f</span><span class="str">"PID: {os.getpid()}"</span>)
+<span class="kw">print</span>(<span class="fn">f</span><span class="str">"OS: {os.name}"</span>)
+<span class="kw">print</span>(<span class="fn">f</span><span class="str">"CPU count: {os.cpu_count()}"</span>)
+
+<span class="cmt"># Environment variables</span>
+path = os.environ.<span class="fn">get</span>(<span class="str">"PATH"</span>, <span class="str">"Not found"</span>)
+<span class="kw">print</span>(<span class="fn">f</span><span class="str">"PATH starts: {path[:50]}"</span>)
+
+<span class="cmt"># Threading (multiple threads)</span>
+<span class="kw">def</span> <span class="fn">worker</span>(n):
+    <span class="kw">print</span>(<span class="fn">f</span><span class="str">"Thread {n} running"</span>)
+
+threads = []
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>):
+    t = threading.<span class="cls">Thread</span>(target=<span class="fn">worker</span>, args=(i,))
+    threads.<span class="fn">append</span>(t)
+    t.<span class="fn">start</span>()
+
+<span class="kw">for</span> t <span class="kw">in</span> threads:
+    t.<span class="fn">join</span>()
+
+<span class="kw">print</span>(<span class="str">"All threads done"</span>)`,
+    quiz: [
+      { q: "What is the difference between a process and a thread?", opts: ["They're identical", "Process has own memory; thread shares memory within process", "Thread is slower", "Process is part of a thread"], ans: 1, fb: "A process has its own isolated memory space. Threads exist within a process and share its memory — making them faster to create but requiring synchronization." },
+      { q: "What is virtual memory?", opts: ["Memory on the GPU", "Extra RAM modules", "A layer where each process sees its own private address space", "Encrypted memory"], ans: 2, fb: "Virtual memory gives each process an illusion of having dedicated memory. The OS maps virtual addresses to physical RAM (and disk if needed)." },
+      { q: "What does a CPU scheduler do?", opts: ["Manages file systems", "Decides which process runs next on the CPU", "Allocates disk space", "Handles network connections"], ans: 1, fb: "The CPU scheduler determines the order and time slices in which processes get to run on the CPU." }
+    ],
+    terms: [
+      { name: "Kernel", def: "Core OS component with direct hardware access" },
+      { name: "Process", def: "An executing program with its own memory space" },
+      { name: "Virtual Memory", def: "Each process gets isolated address space mapped to physical RAM" }
+    ],
+    resources: [
+      { icon: "📖", label: "Linux Journey", url: "https://linuxjourney.com", tag: "FREE" },
+      { icon: "📖", label: "OSTep (Free OS Textbook)", url: "https://pages.cs.wisc.edu/~remzi/OSTEP/", tag: "FREE BOOK" }
+    ]
+  },
+  // 16
+  {
+    id: 16, level: 'pro', icon: '☁️',
+    title: 'Cloud Computing & DevOps',
+    time: '40 min', xp: 80,
+    keywords: ['cloud', 'AWS', 'Docker', 'Kubernetes', 'CI/CD', 'DevOps', 'deployment', 'containers'],
+    theory: `
+      <h2>What Is Cloud Computing?</h2>
+      <p>Cloud computing delivers computing resources (servers, storage, databases, networking) over the internet on demand. Major providers: <strong>AWS, Google Cloud, Microsoft Azure</strong>.</p>
+      <h3>Cloud Service Models</h3>
+      <ul>
+        <li><strong>IaaS</strong>: Infrastructure as a Service — raw VMs, networking. e.g. AWS EC2. You manage OS and up.</li>
+        <li><strong>PaaS</strong>: Platform as a Service — managed environment. e.g. Heroku, Google App Engine. You manage app and data.</li>
+        <li><strong>SaaS</strong>: Software as a Service — fully managed apps. e.g. Gmail, Salesforce. You just use it.</li>
+        <li><strong>FaaS/Serverless</strong>: Run code without managing servers. e.g. AWS Lambda. Pay per execution.</li>
+      </ul>
+      <h2>Docker & Containers</h2>
+      <p>A container packages an application with all its dependencies into an isolated unit that runs consistently anywhere. Docker is the most popular container platform.</p>
+      <ul>
+        <li><strong>Image</strong>: Read-only template (like a class)</li>
+        <li><strong>Container</strong>: Running instance of an image (like an object)</li>
+        <li><strong>Dockerfile</strong>: Recipe for building an image</li>
+        <li><strong>Kubernetes (K8s)</strong>: Orchestrates many containers at scale</li>
+      </ul>
+      <h2>CI/CD Pipeline</h2>
+      <p>Continuous Integration / Continuous Deployment automates testing and deployment: Code → Git push → Tests run → Build → Deploy to production. Tools: GitHub Actions, Jenkins, CircleCI.</p>
+      <div class="info-box"><div class="info-title">🚀 Free Tier</div>AWS, GCP, and Azure all offer free tiers. Start with: AWS free tier for 12 months, Google Cloud free tier, or Cloudflare (generous free tier). Search "AWS free tier tutorial" on Google.</div>
+    `,
+    code: `<span class="cmt"># Docker — Dockerfile example</span>
+<span class="cmt"># Build: docker build -t myapp .</span>
+<span class="cmt"># Run:   docker run -p 8080:8080 myapp</span>
+
+<span class="cmt">FROM</span> python:<span class="num">3.11</span>-slim
+
+<span class="cmt">WORKDIR</span> /app
+
+<span class="cmt">COPY</span> requirements.txt .
+<span class="kw">RUN</span> pip install -r requirements.txt
+
+<span class="cmt">COPY</span> . .
+
+<span class="kw">EXPOSE</span> <span class="num">8080</span>
+
+<span class="kw">CMD</span> [<span class="str">"python"</span>, <span class="str">"app.py"</span>]
+
+<span class="cmt">---</span>
+
+<span class="cmt"># GitHub Actions CI/CD (YAML)</span>
+name: CI/CD Pipeline
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with: { python-version: <span class="str">"3.11"</span> }
+      - run: pip install -r requirements.txt
+      - run: pytest  <span class="cmt"># Run tests</span>
+  
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - run: <span class="fn">echo</span> <span class="str">"Deploy to production!"</span>`,
+    quiz: [
+      { q: "What is the difference between IaaS and PaaS?", opts: ["They are the same", "IaaS gives raw infrastructure; PaaS gives a managed app platform", "PaaS is cheaper always", "IaaS is for small apps"], ans: 1, fb: "IaaS (e.g., EC2) gives you raw VMs — you manage OS, runtime, dependencies. PaaS (e.g., Heroku) manages infrastructure so you focus on app code." },
+      { q: "What is a Docker container?", opts: ["A virtual machine", "A running instance of a packaged app with its dependencies", "A cloud storage bucket", "A CI/CD pipeline"], ans: 1, fb: "A Docker container is a running instance of an image — an isolated, portable environment containing the app and all its dependencies." },
+      { q: "What does CI/CD stand for?", opts: ["Code Interface / Code Deploy", "Continuous Integration / Continuous Deployment", "Cloud Infrastructure / Cloud Delivery", "Component Interface / Component Design"], ans: 1, fb: "CI/CD = Continuous Integration (automatically test on each commit) / Continuous Deployment (automatically deploy passing builds)." }
+    ],
+    terms: [
+      { name: "Container", def: "Isolated, portable app package with all dependencies" },
+      { name: "Kubernetes", def: "System for orchestrating containers at scale" },
+      { name: "Serverless", def: "Run code without managing servers, pay per execution" }
+    ],
+    resources: [
+      { icon: "🎓", label: "AWS Free Tier", url: "https://aws.amazon.com/free/", tag: "FREE" },
+      { icon: "📖", label: "Docker Getting Started", url: "https://docs.docker.com/get-started/", tag: "OFFICIAL" }
+    ]
+  },
+  // 17
+  {
+    id: 17, level: 'pro', icon: '🧵',
+    title: 'Concurrency & Distributed Systems',
+    time: '45 min', xp: 90,
+    keywords: ['concurrency', 'distributed', 'mutex', 'deadlock', 'CAP theorem', 'microservices', 'eventual consistency'],
+    theory: `
+      <h2>Concurrency vs. Parallelism</h2>
+      <ul>
+        <li><strong>Concurrency</strong>: Multiple tasks making progress (may interleave on single CPU). Deals with structure.</li>
+        <li><strong>Parallelism</strong>: Multiple tasks running simultaneously (multiple CPU cores). Deals with execution.</li>
+      </ul>
+      <h2>Shared State Problems</h2>
+      <ul>
+        <li><strong>Race Condition</strong>: Two threads access shared data concurrently, outcome depends on timing.</li>
+        <li><strong>Deadlock</strong>: Two threads each wait for a resource held by the other — both stuck forever.</li>
+        <li><strong>Starvation</strong>: A thread never gets CPU time due to priority issues.</li>
+      </ul>
+      <h3>Solutions</h3>
+      <ul>
+        <li><strong>Mutex/Lock</strong>: Only one thread can hold the lock — serializes access to shared data.</li>
+        <li><strong>Semaphore</strong>: Controls access to a pool of resources.</li>
+        <li><strong>Actor Model</strong>: Objects communicate via messages, no shared state. e.g. Erlang, Akka.</li>
+      </ul>
+      <h2>Distributed Systems</h2>
+      <p>Multiple machines cooperating to appear as one system. Challenges: network failures, latency, partial failures.</p>
+      <div class="warn-box"><div class="warn-title">🔺 CAP Theorem</div>A distributed system can only guarantee 2 of 3: <strong>Consistency</strong> (all nodes see same data), <strong>Availability</strong> (every request gets a response), <strong>Partition Tolerance</strong> (works despite network splits). Since P is unavoidable in real networks, you must choose C or A.</div>
+      <h2>Microservices</h2>
+      <p>Architecture where an app is split into small, independent services that communicate via APIs. Each service can be deployed, scaled, and failed independently.</p>
+    `,
+    code: `<span class="cmt"># Concurrency in Python</span>
+<span class="kw">import</span> threading
+<span class="kw">import</span> asyncio
+
+<span class="cmt"># Race condition — problem</span>
+counter = <span class="num">0</span>
+lock = threading.<span class="cls">Lock</span>()
+
+<span class="kw">def</span> <span class="fn">safe_increment</span>():
+    <span class="kw">global</span> counter
+    <span class="kw">with</span> lock:          <span class="cmt"># Mutex prevents race condition</span>
+        counter += <span class="num">1</span>
+
+threads = [threading.<span class="cls">Thread</span>(target=<span class="fn">safe_increment</span>) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1000</span>)]
+<span class="kw">for</span> t <span class="kw">in</span> threads: t.<span class="fn">start</span>()
+<span class="kw">for</span> t <span class="kw">in</span> threads: t.<span class="fn">join</span>()
+<span class="kw">print</span>(counter)  <span class="cmt"># Always 1000 (thread-safe)</span>
+
+<span class="cmt"># Async/Await — concurrent I/O</span>
+<span class="kw">async def</span> <span class="fn">fetch_data</span>(id):
+    <span class="kw">await</span> asyncio.<span class="fn">sleep</span>(<span class="num">1</span>)  <span class="cmt"># simulate network request</span>
+    <span class="kw">return</span> <span class="fn">f</span><span class="str">"Data {id}"</span>
+
+<span class="kw">async def</span> <span class="fn">main</span>():
+    <span class="cmt"># Run 3 "requests" concurrently</span>
+    results = <span class="kw">await</span> asyncio.<span class="fn">gather</span>(
+        <span class="fn">fetch_data</span>(<span class="num">1</span>), <span class="fn">fetch_data</span>(<span class="num">2</span>), <span class="fn">fetch_data</span>(<span class="num">3</span>)
+    )
+    <span class="kw">print</span>(results)
+
+asyncio.<span class="fn">run</span>(<span class="fn">main</span>())`,
+    quiz: [
+      { q: "What is a race condition?", opts: ["A fast algorithm", "Two threads accessing shared data concurrently with unpredictable results", "CPU core competition", "A sorting race"], ans: 1, fb: "A race condition occurs when two threads access and modify shared data concurrently, and the result depends on the unpredictable execution order." },
+      { q: "What does the CAP theorem state?", opts: ["Computers Always Perform", "Can't have Consistency, Availability, and Partition Tolerance all at once", "Cloud Apps Perform well", "Consistency Always Preferred"], ans: 1, fb: "CAP Theorem: A distributed system can guarantee at most 2 of 3: Consistency, Availability, Partition Tolerance." },
+      { q: "What is a mutex used for?", opts: ["Speed up code", "Prevent race conditions by allowing only one thread to access shared data at a time", "Increase parallelism", "Distribute load"], ans: 1, fb: "A mutex (mutual exclusion lock) ensures only one thread can access a critical section at a time, preventing race conditions." }
+    ],
+    terms: [
+      { name: "Race Condition", def: "Bug from concurrent shared data access with timing-dependent results" },
+      { name: "Deadlock", def: "Two threads permanently blocked waiting on each other" },
+      { name: "CAP Theorem", def: "Distributed system can only guarantee 2 of: Consistency, Availability, Partition Tolerance" }
+    ],
+    resources: [
+      { icon: "📖", label: "Designing Data-Intensive Apps (Kleppmann)", url: "https://dataintensive.net", tag: "BOOK" },
+      { icon: "📖", label: "System Design Primer", url: "https://github.com/donnemartin/system-design-primer", tag: "GITHUB" }
+    ]
+  }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+  completed: JSON.parse(localStorage.getItem('cs_done') || '[]'),
+  xp: parseInt(localStorage.getItem('cs_xp') || '0'),
+  currentLesson: null,
+  currentTab: 'theory',
+  quizAnswers: {}
+};
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  updateXP();
+  updateProgress();
+  markCompletedInSidebar();
+}
+
+function updateXP() {
+  document.getElementById('xp-count').textContent = state.xp;
+}
+
+function updateProgress() {
+  const total = lessons.length;
+  const done = state.completed.length;
+  const pct = Math.round((done / total) * 100);
+
+  document.getElementById('main-progress').style.width = pct + '%';
+  document.getElementById('main-pct').textContent = pct + '%';
+  document.getElementById('done-count').textContent = done;
+
+  const b = state.completed.filter(i => lessons[i].level === 'beginner').length;
+  const im = state.completed.filter(i => lessons[i].level === 'intermediate').length;
+  const a = state.completed.filter(i => lessons[i].level === 'advanced').length;
+  const p = state.completed.filter(i => lessons[i].level === 'pro').length;
+
+  document.getElementById('prog-b').style.width = Math.round(b/5*100)+'%';
+  document.getElementById('prog-i').style.width = Math.round(im/5*100)+'%';
+  document.getElementById('prog-a').style.width = Math.round(a/4*100)+'%';
+  document.getElementById('prog-p').style.width = Math.round(p/4*100)+'%';
+}
+
+function markCompletedInSidebar() {
+  state.completed.forEach(id => {
+    const el = document.getElementById('sb-' + id);
+    if (el) el.classList.add('done');
+  });
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function setNavActive(id) {
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+}
+
+function showHome() {
+  document.getElementById('home-view').style.display = 'block';
+  document.getElementById('lesson-view').style.display = 'none';
+  document.getElementById('roadmap-view').style.display = 'none';
+  document.getElementById('playground-view').style.display = 'none';
+  setNavActive('nav-home');
+  updateProgress();
+}
+
+function showRoadmap() {
+  document.getElementById('home-view').style.display = 'none';
+  document.getElementById('lesson-view').style.display = 'none';
+  document.getElementById('roadmap-view').style.display = 'block';
+  document.getElementById('playground-view').style.display = 'none';
+  setNavActive('nav-roadmap');
+}
+
+function showPlayground() {
+  document.getElementById('home-view').style.display = 'none';
+  document.getElementById('lesson-view').style.display = 'none';
+  document.getElementById('roadmap-view').style.display = 'none';
+  document.getElementById('playground-view').style.display = 'block';
+  setNavActive('nav-playground');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ============================================================
+// LESSON
+// ============================================================
+function openLesson(id) {
+  const lesson = lessons[id];
+  state.currentLesson = id;
+  state.quizAnswers = {};
+
+  document.getElementById('home-view').style.display = 'none';
+  document.getElementById('roadmap-view').style.display = 'none';
+  document.getElementById('playground-view').style.display = 'none';
+  document.getElementById('lesson-view').style.display = 'block';
+
+  setNavActive('sb-' + id);
+
+  const isDone = state.completed.includes(id);
+  const levelColors = { beginner: '#22c55e', intermediate: '#f59e0b', advanced: '#ef4444', pro: '#a78bfa' };
+  const levelLabels = { beginner: '🟢 Beginner', intermediate: '🟡 Intermediate', advanced: '🔴 Advanced', pro: '🟣 Pro' };
+
+  const html = `
+    <div class="lesson-header">
+      <div>
+        <div class="lesson-breadcrumb">
+          <span onclick="showHome()">Home</span> ›
+          <span style="color:${levelColors[lesson.level]}">${levelLabels[lesson.level]}</span> ›
+          ${lesson.title}
+        </div>
+        <div class="lesson-title">${lesson.icon} ${lesson.title}</div>
+        <div class="lesson-meta">
+          <div class="meta-pill">⏱ ${lesson.time}</div>
+          <div class="meta-pill">⚡ +${lesson.xp} XP</div>
+          <div class="meta-pill" style="color:${levelColors[lesson.level]}">${levelLabels[lesson.level]}</div>
+          ${isDone ? '<div class="meta-pill" style="color:#22c55e">✓ Completed</div>' : ''}
+        </div>
+      </div>
+    </div>
+    <div class="lesson-body">
+      <div class="lesson-content">
+        <div class="lesson-tabs">
+          <button class="tab-btn active" onclick="switchTab('theory', this)">📖 Theory</button>
+          <button class="tab-btn" onclick="switchTab('code', this)">💻 Code</button>
+          <button class="tab-btn" onclick="switchTab('quiz', this)">🧠 Quiz</button>
+        </div>
+        <div id="tab-theory" class="tab-content active">
+          <div class="lesson-text">${lesson.theory}</div>
+        </div>
+        <div id="tab-code" class="tab-content">
+          <div class="code-editor-wrap">
+            <div class="code-editor-bar">
+              <div class="code-dots"><span></span><span></span><span></span></div>
+              <div class="code-lang">Python</div>
+              <button class="code-copy" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre id="lesson-code">${lesson.code}</pre>
+          </div>
+        </div>
+        <div id="tab-quiz" class="tab-content">
+          <div class="quiz-wrap">
+            ${lesson.quiz.map((q, qi) => `
+              <div class="quiz-question">
+                <div class="quiz-q-text">Q${qi+1}. ${q.q}</div>
+                <div class="quiz-options">
+                  ${q.opts.map((opt, oi) => `
+                    <div class="quiz-option" id="opt-${qi}-${oi}" onclick="selectOption(${qi}, ${oi}, ${q.ans}, '${lesson.quiz[qi].fb.replace(/'/g,"\\'")}')">
+                      <span class="opt-letter">${String.fromCharCode(65+oi)}</span>
+                      ${opt}
+                    </div>
+                  `).join('')}
+                </div>
+                <div class="quiz-feedback" id="fb-${qi}"></div>
+              </div>
+            `).join('')}
+            <button class="btn-check" onclick="checkAllQuiz(${id})">Submit Answers</button>
+          </div>
+        </div>
+      </div>
+      <div class="lesson-aside">
+        <div class="aside-card">
+          <div class="aside-title">🔑 Key Terms</div>
+          <div class="key-terms">
+            ${lesson.terms.map(t => `
+              <div class="term-item">
+                <div class="term-name">${t.name}</div>
+                <div class="term-def">${t.def}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="aside-card">
+          <div class="aside-title">📚 Resources</div>
+          <div class="resource-list">
+            ${lesson.resources.map(r => `
+              <a href="${r.url}" target="_blank" class="resource-item">
+                <span class="r-icon">${r.icon}</span>
+                <span>${r.label}</span>
+                <span class="r-tag">${r.tag}</span>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+        <div class="aside-card">
+          <div class="aside-title">📍 Navigation</div>
+          ${id > 0 ? `<button class="done-btn" onclick="openLesson(${id-1})" style="margin-bottom:0.5rem">← Previous</button>` : ''}
+          ${id < lessons.length - 1 ? `<button class="next-btn" onclick="openLesson(${id+1})">Next Lesson →</button>` : ''}
+          <button class="done-btn" onclick="markDone(${id})" style="margin-top:0.5rem">
+            ${isDone ? '✓ Completed!' : '✓ Mark as Done'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('lesson-view').innerHTML = html;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+function selectOption(qi, oi, correct, fb) {
+  // clear previous selection for this question
+  document.querySelectorAll(`[id^="opt-${qi}-"]`).forEach(el => {
+    el.classList.remove('correct', 'wrong');
+  });
+  state.quizAnswers[qi] = oi;
+  const el = document.getElementById(`opt-${qi}-${oi}`);
+  el.classList.add(oi === correct ? 'correct' : 'wrong');
+}
+
+function checkAllQuiz(lessonId) {
+  const lesson = lessons[lessonId];
+  let allCorrect = true;
+  lesson.quiz.forEach((q, qi) => {
+    const chosen = state.quizAnswers[qi];
+    const fbEl = document.getElementById('fb-' + qi);
+    if (chosen === undefined) {
+      fbEl.textContent = '⚠️ Please select an answer.';
+      fbEl.className = 'quiz-feedback show wrong-fb';
+      allCorrect = false;
+      return;
+    }
+    const isCorrect = chosen === q.ans;
+    if (!isCorrect) allCorrect = false;
+    fbEl.textContent = (isCorrect ? '✅ Correct! ' : '❌ Incorrect. ') + q.fb;
+    fbEl.className = 'quiz-feedback show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+  });
+  if (allCorrect) {
+    markDone(lessonId);
+  }
+}
+
+function markDone(id) {
+  if (!state.completed.includes(id)) {
+    state.completed.push(id);
+    localStorage.setItem('cs_done', JSON.stringify(state.completed));
+    state.xp += lessons[id].xp;
+    localStorage.setItem('cs_xp', state.xp);
+    updateXP();
+    showXPToast(lessons[id].xp);
+    document.getElementById('sb-' + id).classList.add('done');
+    updateProgress();
+    // Refresh lesson to show "Completed" badge
+    openLesson(id);
+  }
+}
+
+function showXPToast(amount) {
+  const toast = document.getElementById('xp-toast');
+  document.getElementById('xp-amount').textContent = `+${amount} XP earned`;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+
+function copyCode(btn) {
+  const code = document.getElementById('lesson-code');
+  navigator.clipboard.writeText(code.innerText);
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy', 2000);
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+function handleSearch(query) {
+  const resultsEl = document.getElementById('search-results');
+  if (!query.trim()) { resultsEl.innerHTML = ''; return; }
+  const q = query.toLowerCase();
+  const matches = lessons.filter(l =>
+    l.title.toLowerCase().includes(q) ||
+    l.keywords.some(k => k.toLowerCase().includes(q))
+  );
+  if (matches.length === 0) {
+    resultsEl.innerHTML = '<div style="color:var(--text-dimmer);font-size:0.85rem;padding:0.5rem">No topics found for "' + query + '"</div>';
+    return;
+  }
+  const levelColors = { beginner: '#22c55e', intermediate: '#f59e0b', advanced: '#ef4444', pro: '#a78bfa' };
+  resultsEl.innerHTML = matches.map(l => `
+    <div class="search-result-item" onclick="openLesson(${l.id})">
+      <span class="sri-icon">${l.icon}</span>
+      <div class="sri-info">
+        <div class="sri-title">${l.title}</div>
+        <div class="sri-level" style="color:${levelColors[l.level]}">${l.level.charAt(0).toUpperCase()+l.level.slice(1)}</div>
+      </div>
+      <span style="color:var(--text-dimmer);font-size:0.8rem">→</span>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// PLAYGROUND
+// ============================================================
+function runCode() {
+  const code = document.getElementById('code-editor').value;
+  const output = document.getElementById('output-text');
+  output.className = '';
+  const logs = [];
+  const origConsole = console.log;
+  console.log = (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '));
+  try {
+    eval(code);
+    console.log = origConsole;
+    output.textContent = logs.join('\n') || '(no output)';
+  } catch (e) {
+    console.log = origConsole;
+    output.textContent = '❌ Error: ' + e.message;
+    output.className = 'output-error';
+  }
+}
+
+const snippets = {
+  hello: `// Hello World
+console.log("Hello, World!");
+console.log("Welcome to CS Academy!");`,
+  loop: `// For Loop Example
+for (let i = 1; i <= 5; i++) {
+  console.log(\`Iteration \${i}\`);
+}
+
+// Array iteration
+const fruits = ["apple", "banana", "cherry"];
+fruits.forEach((fruit, index) => {
+  console.log(\`\${index}: \${fruit}\`);
+});`,
+  array: `// Arrays in JavaScript
+const nums = [5, 3, 8, 1, 9, 2, 7];
+
+// Built-in methods
+console.log("Sorted:", [...nums].sort((a,b) => a-b));
+console.log("Filtered (>5):", nums.filter(n => n > 5));
+console.log("Mapped (×2):", nums.map(n => n * 2));
+console.log("Sum:", nums.reduce((a,b) => a+b, 0));`,
+  object: `// Objects in JavaScript
+const person = {
+  name: "Alice",
+  age: 25,
+  greet() {
+    return \`Hi, I'm \${this.name}!\`;
+  }
+};
+
+console.log(person.greet());
+console.log(Object.keys(person));
+
+// Destructuring
+const { name, age } = person;
+console.log(\`\${name} is \${age}\`);`,
+  recursion: `// Recursive Fibonacci
+function fib(n, memo = {}) {
+  if (n in memo) return memo[n];
+  if (n <= 1) return n;
+  memo[n] = fib(n-1, memo) + fib(n-2, memo);
+  return memo[n];
+}
+
+for (let i = 0; i <= 10; i++) {
+  console.log(\`fib(\${i}) = \${fib(i)}\`);
+}`,
+  sort: `// Bubble Sort Implementation
+function bubbleSort(arr) {
+  const a = [...arr];
+  const n = a.length;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n - i - 1; j++) {
+      if (a[j] > a[j+1]) {
+        [a[j], a[j+1]] = [a[j+1], a[j]]; // swap
+      }
+    }
+  }
+  return a;
+}
+
+const data = [64, 34, 25, 12, 22, 11, 90];
+console.log("Before:", data.join(", "));
+console.log("After: ", bubbleSort(data).join(", "));`
+};
+
+function loadSnippet(name) {
+  document.getElementById('code-editor').value = snippets[name];
+  document.getElementById('output-text').textContent = 'Click "Run Code" to execute...';
+  document.getElementById('output-text').className = '';
+}
+
+// ============================================================
+// START
+// ============================================================
+init();
+</script>
+</body>
+</html>
